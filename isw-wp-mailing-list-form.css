@@ -1,0 +1,15 @@
+/* isw-wp-mailing-list-submit.css */
+.isw-ml-form-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.isw-ml-form-container form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
