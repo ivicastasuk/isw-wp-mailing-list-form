@@ -1,19 +1,21 @@
 <?php
 /**
- * Plugin Name: ISW WP Mailing List Form
- * Description: The ISW WP Mailing List Form plugin seamlessly integrates a subscription form into your WordPress site, allowing visitors to enter their email addresses to subscribe to your newsletter.
- * Version: 0.1
- * Author: Ivica Stasuk
- * Author URI: https://www.stasuk.in.rs
- * License: GPL v3 or later
- * License URI: https://www.gnu.org/licenses/gpl-3.0.html
- * Text Domain: isw-wp-ml-form
+ * Plugin Name: 	ISW WP Mailing List Form
+ * Description: 	The ISW WP Mailing List Form plugin integrates a subscription form into your WordPress site, allowing visitors to enter their email addresses to subscribe to your newsletter.
+ * Version: 		0.1
+ * Author: 			Ivica Stasuk
+ * Author URI: 		https://www.stasuk.in.rs
+ * License: 		GPL v3 or later
+ * License URI: 	https://www.gnu.org/licenses/gpl-3.0.html
+ * Text Domain: 	isw-wp-ml-form
+ * Domain Path: 	/languages
 */
 
 function add_isw_mailinglist_form(){
 	$ml_message = '';
+	$ml_message .= '<div class="isw-ml-form-container">';
 	if(isset($_GET['ml_submitted']) && $_GET['ml_submitted'] == '1'){
-		$ml_message = '<div class="isw-ml-form-container"><div class="isw-ml-form-message">Your E-mail address was successfully submitted. Thank you!</div>'; 
+		$ml_message .= '<div class="isw-ml-form-message">Your E-mail address was successfully submitted. Thank you!</div>'; 
 	}
 	$isw_ml_form = $ml_message . '<form action="" method="post">
 							<input type="text" name="isw_ml_name" placeholder="Your name..." required>
@@ -33,15 +35,6 @@ function isw_mailing_list_form_styles(){
 	wp_enqueue_style('isw-wp-ml-form');
 }
 add_action('wp_enqueue_scripts', 'isw_mailing_list_form_styles');
-
-function isw_mailing_list_form_admin_styles(){
-	$css_url = plugins_url('isw-wp-mailing-list-form-admin.css', __FILE__);
-
-	wp_register_style('isw-wp-ml-form-admin', $css_url);
-
-	wp_enqueue_style('isw-wp-ml-form-admin');
-}
-add_action('admin_enqueue_scripts', 'isw_mailing_list_form_admin_styles');
 
 function save_ml_form_to_db(){
 	if(isset($_POST['isw_ml_submit'])){
@@ -76,12 +69,12 @@ function isw_ml_form_menu(){
 		'ISW Mailing List',
 		'manage_options',
 		'isw-ml-form',
-		'isw_ml_form_page'
+		'isw_ml_form_admin_page'
 	);
 }
 add_action('admin_menu', 'isw_ml_form_menu');
 
-function isw_ml_form_page(){
+function isw_ml_form_admin_page(){
 	if (!current_user_can('manage_options')) {
 		wp_die('You don\'t have access to this page.');
 	}
@@ -110,48 +103,13 @@ function isw_ml_form_page(){
 
 	echo '</tbody></table>';
 	echo '<div class="tablenav">';
-	// echo '<form method="post">';
-	// echo '<input type="submit" name="export_emails" value="Export as CSV" class="alignright" />';
-	// echo '</form>';
 	echo '<a href="' . esc_url($export_url) . '" class="button alignright">Export as CSV</a>';
 	echo '</div>';
 	echo '</div>';
 
 }
 
-// function isw_ml_form_export_csv(){
-
-// 	if (!current_user_can('export')) {
-// 		wp_die('You don\'t have access to export this data.');
-// 	}
-
-// 	ob_start();
-
-// 	global $wpdb;
-// 	$isw_table = $wpdb->prefix . 'isw_ml';
-
-// 	$data = $wpdb->get_results("SELECT * FROM $isw_table");
-
-// 	if(count($data) > 0){
-// 		$delimiter = ",";
-// 		$filename = "isw-ml_" . date('Ymd') . ".csv";
-
-// 		header('Content-Type: text/csv');
-// 		header('Content-Disposition: attachment; filename="' . $filename . '";');
-// 		$f = fopen('php://output', 'w');
-// 		$headers = array('DisplayName', 'PrimaryEmail');
-// 		fputcsv($f, $headers, $delimiter);
-
-// 		foreach($data as $row){
-// 			$line_data = array($row->name, $row->email);
-// 			fputcsv($f, $line_data, $delimiter);
-// 		}
-
-// 		fseek($f, 0);
-
-// 		fclose($f);
-// 	}
-
-// 	ob_end_flush();
-// 	exit;
-// }
+register_uninstall_hook(
+	__FILE__,
+	'pluginprefix_function_to_run'
+);
