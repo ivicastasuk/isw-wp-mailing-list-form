@@ -108,8 +108,3 @@ function isw_ml_form_admin_page(){
 	echo '</div>';
 
 }
-
-register_uninstall_hook(
-	__FILE__,
-	'pluginprefix_function_to_run'
-);
