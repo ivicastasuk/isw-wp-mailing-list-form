@@ -1,9 +1,20 @@
-/* isw-wp-mailing-list-submit.css */
+/* isw-wp-mailing-list-form.css */
 .isw-ml-form-container {
     width: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 1rem;
+}
+
+.isw-ml-form-message {
+    border: 1px solid #a3f7a3;
+    border-radius: 1rem;
+    background-color: #237223;
+    color: #ffffff;
+    padding: 1rem;
+    text-align: center;
 }
 
 .isw-ml-form-container form {
@@ -12,4 +23,27 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
+    gap: 0.5rem;
+}
+
+.isw-ml-form-container form input[type=text],
+.isw-ml-form-container form input[type=email] {
+    padding: 1rem 1rem;
+    border: 1px solid #606060;
+    border-radius: 1rem;
+    color: #ffffff;
+}
+
+.isw-ml-form-container form input[type=submit] {
+    border: 1px solid #606060;
+    background-color: #001f53;
+    border-radius: 1rem;
+    color: #ffffff;
+    /* width: initial; */
+    padding: 1rem 1rem;
+}
+
+.isw-ml-form-container form input[type=text]::placeholder,
+.isw-ml-form-container form input[type=email]::placeholder {
+    color: #808080;
 }
