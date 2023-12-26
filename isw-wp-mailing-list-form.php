@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: 	ISW WP Mailing List Form
- * Description: 	The ISW WP Mailing List Form plugin integrates a subscription form into your WordPress site, allowing visitors to enter their email addresses to subscribe to your newsletter.
- * Version: 		0.1
+ * Description: 	The ISW WP Mailing List Form plugin integrates a subscription form into your WordPress site, allowing visitors to enter their email address to subscribe to your newsletter.
+ * Version: 		1.0.0
  * Author: 			Ivica Stasuk
  * Author URI: 		https://www.stasuk.in.rs
  * License: 		GPL v3 or later
@@ -17,10 +17,13 @@ function add_isw_mailinglist_form(){
 	if(isset($_GET['ml_submitted']) && $_GET['ml_submitted'] == '1'){
 		$ml_message .= '<div class="isw-ml-form-message">Your E-mail address was successfully submitted. Thank you!</div>'; 
 	}
+	$button_bg_color = get_option('button_bg_color', '#001f53');
+	$button_text_color = get_option('button_text_color', '#ffffff');
+	$button_text = get_option('button_text', 'Subscribe to our mailing list');
 	$isw_ml_form = $ml_message . '<form action="" method="post">
 							<input type="text" name="isw_ml_name" placeholder="Your name..." required>
 							<input type="email" name="isw_ml_email" placeholder="Your E-Mail address..." required>
-							<input type="submit" name="isw_ml_submit" value="Subscribe to our mailing list">
+							<input type="submit" name="isw_ml_submit" value="' . sanitize_text_field($button_text) . '" style="background-color:' . esc_attr($button_bg_color) . '; color:' . esc_attr($button_text_color) . ';">
 						</form>
 					</div>';
 	return $isw_ml_form;
@@ -68,13 +71,33 @@ function isw_ml_form_menu(){
 		'ISW Mailing List',
 		'ISW Mailing List',
 		'manage_options',
-		'isw-ml-form',
-		'isw_ml_form_admin_page'
+		'isw-ml-form-dashboard',
+		'isw_ml_form_admin_page_dashboard',
+		'dashicons-email-alt',
+		15
+	);
+
+	add_submenu_page(
+		'isw-ml-form-dashboard',
+		'Dashboard',
+		'Dashboard',
+		'manage_options',
+		'isw-ml-form-dashboard',
+		'isw_ml_form_admin_page_dashboard'
+	);
+
+	add_submenu_page(
+		'isw-ml-form-dashboard',
+		'Customization',
+		'Customization',
+		'manage_options',
+		'isw-ml-form-customization',
+		'isw_ml_form_admin_page_customization'
 	);
 }
 add_action('admin_menu', 'isw_ml_form_menu');
 
-function isw_ml_form_admin_page(){
+function isw_ml_form_admin_page_dashboard(){
 	if (!current_user_can('manage_options')) {
 		wp_die('You don\'t have access to this page.');
 	}
@@ -107,4 +130,93 @@ function isw_ml_form_admin_page(){
 	echo '</div>';
 	echo '</div>';
 
+}
+
+function isw_ml_form_admin_page_customization(){
+
+	if (!current_user_can('manage_options')) {
+		wp_die('You don\'t have access to this page.');
+	}
+		
+	?>
+	<div class="wrap">
+		<h2>Form Customization</h2>
+		<form method="post" action="options.php">
+			<?php
+			settings_fields('isw-ml-settings-group');
+			do_settings_sections('isw-ml-settings');
+			submit_button();
+			?>
+	</div>
+	<?php
+}
+
+
+function isw_ml_admin_scripts() {
+	wp_enqueue_style('wp-color-picker');
+    wp_enqueue_script('wp-color-picker');
+    wp_enqueue_script('isw-ml-admin-script', plugins_url('isw-wp-mailing-list-form.js', __FILE__), array('wp-color-picker'), false, true);
+}
+add_action('admin_enqueue_scripts', 'isw_ml_admin_scripts');
+
+function isw_ml_settings_init(){
+
+	if (isset($_POST['button_text']) && trim($_POST['button_text']) == '') {
+        $_POST['button_text'] = 'Subscribe to our mailing list';
+    }
+
+	if (isset($_POST['button_text'])) {
+		$_POST['button_text'] = sanitize_text_field($_POST['button_text']);
+	}
+
+	register_setting('isw-ml-settings-group', 'button_bg_color');
+	register_setting('isw-ml-settings-group', 'button_text_color');
+	register_setting('isw-ml-settings-group', 'button_text');
+
+	add_settings_section(
+		'isw-ml-settings-section',
+		'Submit Button styles',
+		'isw_ml_settings_section_callback',
+		'isw-ml-settings'
+	);
+
+	add_settings_field(
+		'button_bg_color',
+		'Button background color',
+		'isw_ml_btn_bg_color_callback',
+		'isw-ml-settings',
+		'isw-ml-settings-section'
+	);
+	add_settings_field(
+		'button_text_color',
+		'Button text color',
+		'isw_ml_btn_text_color_callback',
+		'isw-ml-settings',
+		'isw-ml-settings-section'
+	);
+	add_settings_field(
+		'button_text',
+		'Button text',
+		'isw_ml_btn_text_callback',
+		'isw-ml-settings',
+		'isw-ml-settings-section'
+	);
+}
+add_action('admin_init', 'isw_ml_settings_init');
+
+function isw_ml_settings_section_callback(){
+	echo '<h3>Style your form...</h3>';
+}
+
+function isw_ml_btn_bg_color_callback(){
+	$button_bg_color = get_option('button_bg_color', '#001f53');
+	echo '<input type="text" id="btn_bg_color" name="button_bg_color" value="' . esc_attr($button_bg_color) . '" />';
+}
+function isw_ml_btn_text_color_callback(){
+	$button_text_color = get_option('button_text_color', '#ffffff');
+	echo '<input type="text" id="btn_text_color" name="button_text_color" value="' . esc_attr($button_text_color) . '" />';
+}
+function isw_ml_btn_text_callback(){
+	$button_text = get_option('button_text', 'Subscribe to our mailing list');
+	echo '<input type="text" id="btn_text" name="button_text" value="' . sanitize_text_field($button_text) . '" />';
 }

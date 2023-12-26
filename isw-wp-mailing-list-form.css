@@ -36,9 +36,9 @@
 
 .isw-ml-form-container form input[type=submit] {
     border: 1px solid #606060;
-    background-color: #001f53;
+    /* background-color: #001f53; */
     border-radius: 1rem;
-    color: #ffffff;
+    /* color: #ffffff; */
     /* width: initial; */
     padding: 1rem 1rem;
 }
