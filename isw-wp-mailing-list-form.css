@@ -31,7 +31,7 @@
     padding: 1rem 1rem;
     border: 1px solid #606060;
     border-radius: 1rem;
-    color: #ffffff;
+    /* color: #ffffff; */
 }
 
 .isw-ml-form-container form input[type=submit] {

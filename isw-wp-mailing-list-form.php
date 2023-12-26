@@ -17,12 +17,16 @@ function add_isw_mailinglist_form(){
 	if(isset($_GET['ml_submitted']) && $_GET['ml_submitted'] == '1'){
 		$ml_message .= '<div class="isw-ml-form-message">Your E-mail address was successfully submitted. Thank you!</div>'; 
 	}
+
+	$input_text_color = get_option('input_text_color', '#001f53');
+	$input_border_color = get_option('input_border_color', '#808080');
 	$button_bg_color = get_option('button_bg_color', '#001f53');
 	$button_text_color = get_option('button_text_color', '#ffffff');
 	$button_text = get_option('button_text', 'Subscribe to our mailing list');
+	
 	$isw_ml_form = $ml_message . '<form action="" method="post">
-							<input type="text" name="isw_ml_name" placeholder="Your name..." required>
-							<input type="email" name="isw_ml_email" placeholder="Your E-Mail address..." required>
+							<input type="text" name="isw_ml_name" placeholder="Your name..." required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';">
+							<input type="email" name="isw_ml_email" placeholder="Your E-Mail address..." required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';">
 							<input type="submit" name="isw_ml_submit" value="' . sanitize_text_field($button_text) . '" style="background-color:' . esc_attr($button_bg_color) . '; color:' . esc_attr($button_text_color) . ';">
 						</form>
 					</div>';
@@ -51,13 +55,14 @@ function save_ml_form_to_db(){
 					id int(11) NOT NULL AUTO_INCREMENT,
 					name VARCHAR(255) NOT NULL,
 					email VARCHAR(255) NOT NULL,
+					is_new int(11) NOT NULL,
 					UNIQUE KEY id (id)
 					);";
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 			dbDelta($sql);
 		}
 		
-		$wpdb->insert($isw_table, array('name' => $name, 'email' => $email));
+		$wpdb->insert($isw_table, array('name' => $name, 'email' => $email, 'is_new' => 1));
 
 		$redirect_url = add_query_arg('ml_submitted', '1', wp_get_referer());
         wp_redirect($redirect_url);
@@ -67,9 +72,13 @@ function save_ml_form_to_db(){
 add_action('init', 'save_ml_form_to_db');
 
 function isw_ml_form_menu(){
-	add_menu_page(
+
+	$new_entries_count = isw_get_new_entries_count();
+	$menu_title = 'ISW ML' . ($new_entries_count > 0 ? " <span class='update-plugins count-$new_entries_count'><span class='plugin-count'>" . intval($new_entries_count) . "</span></span>" : '');
+
+	$dashboard_hook = add_menu_page(
 		'ISW Mailing List',
-		'ISW Mailing List',
+		$menu_title,
 		'manage_options',
 		'isw-ml-form-dashboard',
 		'isw_ml_form_admin_page_dashboard',
@@ -94,6 +103,9 @@ function isw_ml_form_menu(){
 		'isw-ml-form-customization',
 		'isw_ml_form_admin_page_customization'
 	);
+
+	add_action('load-' . $dashboard_hook, 'isw_reset_new_entries');
+
 }
 add_action('admin_menu', 'isw_ml_form_menu');
 
@@ -143,10 +155,18 @@ function isw_ml_form_admin_page_customization(){
 		<h2>Form Customization</h2>
 		<form method="post" action="options.php">
 			<?php
-			settings_fields('isw-ml-settings-group');
-			do_settings_sections('isw-ml-settings');
+			settings_fields('isw-ml-input-settings-group');
+			do_settings_sections('isw-ml-input-settings');
 			submit_button();
 			?>
+		</form>
+		<form method="post" action="options.php">
+			<?php
+			settings_fields('isw-ml-button-settings-group');
+			do_settings_sections('isw-ml-button-settings');
+			submit_button();
+			?>
+		</form>
 	</div>
 	<?php
 }
@@ -169,54 +189,116 @@ function isw_ml_settings_init(){
 		$_POST['button_text'] = sanitize_text_field($_POST['button_text']);
 	}
 
-	register_setting('isw-ml-settings-group', 'button_bg_color');
-	register_setting('isw-ml-settings-group', 'button_text_color');
-	register_setting('isw-ml-settings-group', 'button_text');
+	register_setting('isw-ml-input-settings-group', 'input_text_color');
+	register_setting('isw-ml-input-settings-group', 'input_border_color');
 
 	add_settings_section(
-		'isw-ml-settings-section',
-		'Submit Button styles',
-		'isw_ml_settings_section_callback',
-		'isw-ml-settings'
+		'isw-ml-settings-input-section',
+		'',
+		'isw_ml_settings_input_section_callback',
+		'isw-ml-input-settings'
+	);
+
+	add_settings_field(
+		'input_text_color',
+		'Input field text color',
+		'isw_ml_input_text_color_callback',
+		'isw-ml-input-settings',
+		'isw-ml-settings-input-section'
+	);
+	
+	add_settings_field(
+		'input_border_color',
+		'Input field border color',
+		'isw_ml_input_border_color_callback',
+		'isw-ml-input-settings',
+		'isw-ml-settings-input-section'
+	);
+
+	register_setting('isw-ml-button-settings-group', 'button_bg_color');
+	register_setting('isw-ml-button-settings-group', 'button_text');
+	register_setting('isw-ml-button-settings-group', 'button_text_color');
+
+	add_settings_section(
+		'isw-ml-settings-button-section',
+		'',
+		'isw_ml_settings_button_section_callback',
+		'isw-ml-button-settings'
 	);
 
 	add_settings_field(
 		'button_bg_color',
 		'Button background color',
 		'isw_ml_btn_bg_color_callback',
-		'isw-ml-settings',
-		'isw-ml-settings-section'
+		'isw-ml-button-settings',
+		'isw-ml-settings-button-section'
 	);
 	add_settings_field(
 		'button_text_color',
 		'Button text color',
 		'isw_ml_btn_text_color_callback',
-		'isw-ml-settings',
-		'isw-ml-settings-section'
+		'isw-ml-button-settings',
+		'isw-ml-settings-button-section'
 	);
 	add_settings_field(
 		'button_text',
 		'Button text',
 		'isw_ml_btn_text_callback',
-		'isw-ml-settings',
-		'isw-ml-settings-section'
+		'isw-ml-button-settings',
+		'isw-ml-settings-button-section'
 	);
 }
 add_action('admin_init', 'isw_ml_settings_init');
 
-function isw_ml_settings_section_callback(){
-	echo '<h3>Style your form...</h3>';
+/* input fields */
+function isw_ml_settings_input_section_callback(){
+	echo '<div style="border: 1px solid #404040; border-radius: 0.25rem; background-color: #808080; padding: 0.5rem 1rem;"><h3 style="margin: 0; color: #ffffff;">Style your input fields...</h3></div>';
+}
+
+function isw_ml_input_text_color_callback(){
+	$input_text_color = get_option('input_text_color', '#001f53');
+	echo '<input type="text" id="input_text_color" name="input_text_color" value="' . esc_attr($input_text_color) . '" />';
+}
+
+function isw_ml_input_border_color_callback(){
+	$input_border_color = get_option('input_border_color', '#808080');
+	echo '<input type="text" id="input_border_color" name="input_border_color" value="' . esc_attr($input_border_color) . '" />';
+}
+
+/* button */
+function isw_ml_settings_button_section_callback(){
+	echo '<div style="border: 1px solid #404040; border-radius: 0.25rem; background-color: #808080; padding: 0.5rem 1rem;"><h3 style="margin: 0; color: #ffffff;">Style your button...</h3></div>';
 }
 
 function isw_ml_btn_bg_color_callback(){
 	$button_bg_color = get_option('button_bg_color', '#001f53');
 	echo '<input type="text" id="btn_bg_color" name="button_bg_color" value="' . esc_attr($button_bg_color) . '" />';
 }
+
 function isw_ml_btn_text_color_callback(){
 	$button_text_color = get_option('button_text_color', '#ffffff');
 	echo '<input type="text" id="btn_text_color" name="button_text_color" value="' . esc_attr($button_text_color) . '" />';
 }
+
 function isw_ml_btn_text_callback(){
 	$button_text = get_option('button_text', 'Subscribe to our mailing list');
-	echo '<input type="text" id="btn_text" name="button_text" value="' . sanitize_text_field($button_text) . '" />';
+	echo '<input type="text" id="btn_text" name="button_text" value="' . sanitize_text_field($button_text) . '" style="width: 100%;" />';
+}
+
+/* funkcije za proveru broja novih unosa i njihov pregled i prikazivanje */
+function isw_get_new_entries_count(){
+	global $wpdb;
+
+	$isw_table = $wpdb->prefix . 'isw_ml';
+
+	$new_entries_count = $wpdb->get_var("SELECT COUNT(*) FROM $isw_table WHERE is_new = 1");
+
+	return $new_entries_count;
+}
+
+function isw_reset_new_entries() {
+    global $wpdb;
+    $isw_table = $wpdb->prefix . 'isw_ml';
+
+    $wpdb->query("UPDATE $isw_table SET is_new = 0 WHERE is_new = 1");
 }
