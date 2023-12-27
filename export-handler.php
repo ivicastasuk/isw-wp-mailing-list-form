@@ -20,7 +20,7 @@ if(count($data) > 0){
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="' . $filename . '";');
     $f = fopen('php://output', 'w');
-    $headers = array('DisplayName', 'PrimaryEmail');
+    $headers = array('Display Name', 'Primary Email');
     fputcsv($f, $headers, $delimiter);
 
     foreach($data as $row){
