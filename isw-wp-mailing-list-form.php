@@ -206,7 +206,7 @@ function isw_ml_settings_init(){
 		'isw-ml-input-settings',
 		'isw-ml-settings-input-section'
 	);
-	
+
 	add_settings_field(
 		'input_border_color',
 		'Input field border color',
