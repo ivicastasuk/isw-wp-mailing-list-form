@@ -325,7 +325,10 @@ function isw_send_thankyou_email($to_email, $subscriber_name) {
     
     $message = str_replace('{{name}}', $subscriber_name, $template);
     
-    $headers = array('Content-Type: text/plain; charset=UTF-8');
+    $headers = array(
+		'From: LiRideNET <noreply@liridenet.com>',
+		'Content-Type: text/plain; charset=UTF-8'
+	);
     
     wp_mail($to_email, $subject, $message, $headers);
 }
