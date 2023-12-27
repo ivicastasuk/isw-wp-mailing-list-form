@@ -171,6 +171,7 @@ function isw_ml_form_admin_page_customization(){
 		</form>
 	<?php $email_template = get_option('isw_ml_email_template', 'Dear {{name}}, thank you for your subscription!'); ?>
 		<h2>Response email</h2>
+		<p><code>{{name}}</code> - Subscribed user name</p>
 		<form method="post" action="options.php">
 			<?php
 			settings_fields('isw-ml-settings-group');
