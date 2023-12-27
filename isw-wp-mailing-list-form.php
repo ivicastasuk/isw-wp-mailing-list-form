@@ -64,6 +64,8 @@ function save_ml_form_to_db(){
 		
 		$wpdb->insert($isw_table, array('name' => $name, 'email' => $email, 'is_new' => 1));
 
+		isw_send_thankyou_email($email, $name);
+
 		$redirect_url = add_query_arg('ml_submitted', '1', wp_get_referer());
         wp_redirect($redirect_url);
         exit;
@@ -167,6 +169,16 @@ function isw_ml_form_admin_page_customization(){
 			submit_button();
 			?>
 		</form>
+	<?php $email_template = get_option('isw_ml_email_template', 'Poštovani/a {{name}}, hvala vam na prijavi!'); ?>
+		<h2>Response email</h2>
+		<form method="post" action="options.php">
+			<?php
+			settings_fields('isw-ml-settings-group');
+			do_settings_sections('isw-ml-settings');
+			?>
+			<textarea id="isw_ml_email_template" name="isw_ml_email_template" rows="5" cols="70"><?php echo esc_textarea($email_template); ?></textarea>
+			<?php submit_button(); ?>
+		</form>
 	</div>
 	<?php
 }
@@ -247,6 +259,8 @@ function isw_ml_settings_init(){
 		'isw-ml-button-settings',
 		'isw-ml-settings-button-section'
 	);
+
+	register_setting('isw-ml-settings-group', 'isw_ml_email_template');
 }
 add_action('admin_init', 'isw_ml_settings_init');
 
@@ -301,4 +315,16 @@ function isw_reset_new_entries() {
     $isw_table = $wpdb->prefix . 'isw_ml';
 
     $wpdb->query("UPDATE $isw_table SET is_new = 0 WHERE is_new = 1");
+}
+
+/* funkcija za slanje povratnog emaila */
+function isw_send_thankyou_email($to_email, $subscriber_name) {
+    $subject = 'Thank you for your subscription!';
+    $template = get_option('isw_ml_email_template', 'Dear {{name}}, thank you for your subscription!');
+    
+    $message = str_replace('{{name}}', $subscriber_name, $template);
+    
+    $headers = array('Content-Type: text/plain; charset=UTF-8');
+    
+    wp_mail($to_email, $subject, $message, $headers);
 }
