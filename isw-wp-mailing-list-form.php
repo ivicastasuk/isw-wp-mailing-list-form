@@ -169,16 +169,12 @@ function isw_ml_form_admin_page_customization(){
 			submit_button();
 			?>
 		</form>
-	<?php $email_template = get_option('isw_ml_email_template', 'Dear {{name}}, thank you for your subscription!'); ?>
-		<h2>Response email</h2>
-		<p><code>{{name}}</code> - Subscribed user name</p>
 		<form method="post" action="options.php">
 			<?php
-			settings_fields('isw-ml-settings-group');
-			do_settings_sections('isw-ml-settings');
+			settings_fields('isw-ml-response-mail-settings-group');
+			do_settings_sections('isw-ml-response-mail-settings');
+			submit_button();
 			?>
-			<textarea id="isw_ml_email_template" name="isw_ml_email_template" rows="5" cols="70"><?php echo esc_textarea($email_template); ?></textarea>
-			<?php submit_button(); ?>
 		</form>
 	</div>
 	<?php
@@ -261,7 +257,40 @@ function isw_ml_settings_init(){
 		'isw-ml-settings-button-section'
 	);
 
-	register_setting('isw-ml-settings-group', 'isw_ml_email_template');
+	register_setting('isw-ml-response-mail-settings-group', 'email_from');
+	register_setting('isw-ml-response-mail-settings-group', 'email_subject');
+	register_setting('isw-ml-response-mail-settings-group', 'email_template');
+
+	add_settings_section(
+		'isw-ml-settings-response-mail-section',
+		'',
+		'isw_ml_settings_response_mail_section_callback',
+		'isw-ml-response-mail-settings'
+	);
+
+	add_settings_field(
+		'response_mail_from',
+		'Response Mail from address',
+		'isw_ml_response_mail_from_callback',
+		'isw-ml-response-mail-settings',
+		'isw-ml-settings-response-mail-section'
+	);
+
+	add_settings_field(
+		'response_mail_subject',
+		'Response Mail subject',
+		'isw_ml_response_mail_subject_callback',
+		'isw-ml-response-mail-settings',
+		'isw-ml-settings-response-mail-section'
+	);
+
+	add_settings_field(
+		'response_mail_template',
+		'Response Mail template',
+		'isw_ml_response_mail_template_callback',
+		'isw-ml-response-mail-settings',
+		'isw-ml-settings-response-mail-section'
+	);
 }
 add_action('admin_init', 'isw_ml_settings_init');
 
@@ -300,6 +329,26 @@ function isw_ml_btn_text_callback(){
 	echo '<input type="text" id="btn_text" name="button_text" value="' . sanitize_text_field($button_text) . '" style="width: 100%;" />';
 }
 
+/* response mail */
+function isw_ml_settings_response_mail_section_callback(){
+	echo '<div style="border: 1px solid #404040; border-radius: 0.25rem; background-color: #808080; padding: 0.5rem 1rem;"><h3 style="margin: 0;color: #ffffff;">Edit Response Email template</h3></div>';
+}
+
+function isw_ml_response_mail_from_callback(){
+	$email_from = get_option('email_from', 'noreply@domain.com');
+	echo '<input type="email" id="email_from" name="email_from" value="' . sanitize_email($email_from) . '" style="width: 100%;" />';
+}
+
+function isw_ml_response_mail_subject_callback(){
+	$email_subject = get_option('email_subject', 'Email Subject');
+	echo '<input type="text" id="email_subject" name="email_subject" value="' . sanitize_text_field($email_subject) . '" style="width: 100%;" />';
+}
+
+function isw_ml_response_mail_template_callback(){
+	$email_template = get_option('email_template', 'Dear {{name}}, thank you for your subscription!');
+	echo '<textarea id="email_template" name="email_template" rows="5" style="width: 100%;">' . sanitize_textarea_field($email_template) .'</textarea>';
+}
+
 /* funkcije za proveru broja novih unosa i njihov pregled i prikazivanje */
 function isw_get_new_entries_count(){
 	global $wpdb;
@@ -320,7 +369,7 @@ function isw_reset_new_entries() {
 
 /* funkcija za slanje povratnog emaila */
 function isw_send_thankyou_email($to_email, $subscriber_name) {
-    $subject = 'Thank you for your subscription!';
+    $subject = get_option('isw_ml_email_subject', 'Thank you for your subscription!');
     $template = get_option('isw_ml_email_template', 'Dear {{name}}, thank you for your subscription!');
     
     $message = str_replace('{{name}}', $subscriber_name, $template);
