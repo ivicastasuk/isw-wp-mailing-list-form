@@ -12,25 +12,31 @@
 */
 
 function add_isw_mailinglist_form(){
-	$ml_message = '';
-	$ml_message .= '<div class="isw-ml-form-container">';
-	if(isset($_GET['ml_submitted']) && $_GET['ml_submitted'] == '1'){
-		$ml_message .= '<div class="isw-ml-form-message">Your E-mail address was successfully submitted. Thank you!</div>'; 
-	}
+    $ml_message = '';
+    $ml_message .= '<div class="isw-ml-form-container">';
+    if(isset($_GET['ml_submitted']) && $_GET['ml_submitted'] == '1'){
+        $ml_message .= '<div class="isw-ml-form-message">' . esc_html(get_option('ml_success_message', 'Your E-mail address was successfully submitted. Thank you!')) . '</div>'; 
+    }
+    if(isset($_GET['ml_error']) && $_GET['ml_error'] == '1'){
+        $ml_message .= '<div class="isw-ml-form-message isw-ml-error">' . esc_html(get_option('ml_error_message', 'There was an error with your submission. Please try again.')) . '</div>'; 
+    }
 
-	$input_text_color = get_option('input_text_color', '#001f53');
-	$input_border_color = get_option('input_border_color', '#808080');
-	$button_bg_color = get_option('button_bg_color', '#001f53');
-	$button_text_color = get_option('button_text_color', '#ffffff');
-	$button_text = get_option('button_text', 'Subscribe to our mailing list');
-	
-	$isw_ml_form = $ml_message . '<form action="" method="post">
-							<input type="text" name="isw_ml_name" placeholder="Your name..." required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';">
-							<input type="email" name="isw_ml_email" placeholder="Your E-Mail address..." required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';">
-							<input type="submit" name="isw_ml_submit" value="' . sanitize_text_field($button_text) . '" style="background-color:' . esc_attr($button_bg_color) . '; color:' . esc_attr($button_text_color) . ';">
-						</form>
-					</div>';
-	return $isw_ml_form;
+    $input_text_color = get_option('input_text_color', '#001f53');
+    $input_border_color = get_option('input_border_color', '#808080');
+    $button_bg_color = get_option('button_bg_color', '#001f53');
+    $button_text_color = get_option('button_text_color', '#ffffff');
+    $button_text = get_option('button_text', 'Subscribe to our mailing list');
+    $name_placeholder = get_option('input_name_placeholder', 'Your name...');
+    $email_placeholder = get_option('input_email_placeholder', 'Your E-Mail address...');
+
+    $isw_ml_form = $ml_message . '<form action="" method="post">
+                            <input type="text" name="isw_ml_name" placeholder="' . esc_attr($name_placeholder) . '" required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';">
+                            <input type="email" name="isw_ml_email" placeholder="' . esc_attr($email_placeholder) . '" required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';">
+                            ' . wp_nonce_field('isw_ml_form_action', 'isw_ml_form_nonce', true, false) . '
+                            <input type="submit" name="isw_ml_submit" value="' . esc_attr($button_text) . '" style="background-color:' . esc_attr($button_bg_color) . '; color:' . esc_attr($button_text_color) . ';">
+                        </form>
+                    </div>';
+    return $isw_ml_form;
 }
 add_shortcode('add_isw_ml_form', 'add_isw_mailinglist_form');
 
@@ -44,32 +50,42 @@ function isw_mailing_list_form_styles(){
 add_action('wp_enqueue_scripts', 'isw_mailing_list_form_styles');
 
 function save_ml_form_to_db(){
-	if(isset($_POST['isw_ml_submit'])){
-		global $wpdb;
-		$name = sanitize_text_field($_POST['isw_ml_name']);
-		$email = sanitize_email($_POST['isw_ml_email']);
-		$isw_table = $wpdb->prefix . 'isw_ml';
+    if(isset($_POST['isw_ml_submit'])){
+        if ( ! isset($_POST['isw_ml_form_nonce']) || ! wp_verify_nonce($_POST['isw_ml_form_nonce'], 'isw_ml_form_action') ) {
+            $redirect_url = add_query_arg('ml_error', '1', wp_get_referer());
+            wp_safe_redirect($redirect_url);
+            exit;
+        }
+        global $wpdb;
+        $name = sanitize_text_field($_POST['isw_ml_name']);
+        $email = sanitize_email($_POST['isw_ml_email']);
+        if ( ! is_email($email) ) {
+            $redirect_url = add_query_arg('ml_error', '1', wp_get_referer());
+            wp_safe_redirect($redirect_url);
+            exit;
+        }
+        $isw_table = $wpdb->prefix . 'isw_ml';
 
-		if($wpdb->get_var("SHOW TABLES LIKE '{$isw_table}'") != $isw_table){
-			$sql =  "CREATE TABLE $isw_table (
-					id int(11) NOT NULL AUTO_INCREMENT,
-					name VARCHAR(255) NOT NULL,
-					email VARCHAR(255) NOT NULL,
-					is_new int(11) NOT NULL,
-					UNIQUE KEY id (id)
-					);";
-			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-			dbDelta($sql);
-		}
-		
-		$wpdb->insert($isw_table, array('name' => $name, 'email' => $email, 'is_new' => 1));
+        if($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $isw_table)) != $isw_table){
+            $sql =  "CREATE TABLE $isw_table (
+                    id int(11) NOT NULL AUTO_INCREMENT,
+                    name VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) NOT NULL,
+                    is_new int(11) NOT NULL,
+                    UNIQUE KEY id (id)
+                    );";
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+        }
+        
+        $wpdb->insert($isw_table, array('name' => $name, 'email' => $email, 'is_new' => 1));
 
-		isw_send_thankyou_email($email, $name);
+        isw_send_thankyou_email($email, $name);
 
-		$redirect_url = add_query_arg('ml_submitted', '1', wp_get_referer());
-        wp_redirect($redirect_url);
+        $redirect_url = add_query_arg('ml_submitted', '1', wp_get_referer());
+        wp_safe_redirect($redirect_url);
         exit;
-	}
+    }
 }
 add_action('init', 'save_ml_form_to_db');
 
@@ -136,7 +152,7 @@ function isw_ml_form_admin_page_dashboard(){
 		echo '<tr><td>' . esc_html($item->name) . '</td><td>' . esc_html($item->email) . '</td></tr>';
 	}
 
-	$export_url = plugins_url('export-handler.php', __FILE__);
+	$export_url = wp_nonce_url(plugins_url('export-handler.php', __FILE__), 'isw_ml_export_csv');
 
 	echo '</tbody></table>';
 	echo '<div class="tablenav">';
@@ -291,6 +307,40 @@ function isw_ml_settings_init(){
 		'isw-ml-response-mail-settings',
 		'isw-ml-settings-response-mail-section'
 	);
+
+	register_setting('isw-ml-input-settings-group', 'input_name_placeholder');
+	register_setting('isw-ml-input-settings-group', 'input_email_placeholder');
+	register_setting('isw-ml-input-settings-group', 'ml_success_message');
+	register_setting('isw-ml-input-settings-group', 'ml_error_message');
+
+	add_settings_field(
+		'input_name_placeholder',
+		'Name field placeholder',
+		'isw_ml_input_name_placeholder_callback',
+		'isw-ml-input-settings',
+		'isw-ml-settings-input-section'
+	);
+	add_settings_field(
+		'input_email_placeholder',
+		'Email field placeholder',
+		'isw_ml_input_email_placeholder_callback',
+		'isw-ml-input-settings',
+		'isw-ml-settings-input-section'
+	);
+	add_settings_field(
+		'ml_success_message',
+		'Success message',
+		'isw_ml_success_message_callback',
+		'isw-ml-input-settings',
+		'isw-ml-settings-input-section'
+	);
+	add_settings_field(
+		'ml_error_message',
+		'Error message',
+		'isw_ml_error_message_callback',
+		'isw-ml-input-settings',
+		'isw-ml-settings-input-section'
+	);
 }
 add_action('admin_init', 'isw_ml_settings_init');
 
@@ -349,6 +399,24 @@ function isw_ml_response_mail_template_callback(){
 	echo '<textarea id="email_template" name="email_template" rows="5" style="width: 100%;">' . sanitize_textarea_field($email_template) .'</textarea>';
 }
 
+/* input placeholders */
+function isw_ml_input_name_placeholder_callback(){
+    $ph = get_option('input_name_placeholder', 'Your name...');
+    echo '<input type="text" id="input_name_placeholder" name="input_name_placeholder" value="' . esc_attr($ph) . '" style="width:100%;" />';
+}
+function isw_ml_input_email_placeholder_callback(){
+    $ph = get_option('input_email_placeholder', 'Your E-Mail address...');
+    echo '<input type="text" id="input_email_placeholder" name="input_email_placeholder" value="' . esc_attr($ph) . '" style="width:100%;" />';
+}
+function isw_ml_success_message_callback(){
+    $msg = get_option('ml_success_message', 'Your E-mail address was successfully submitted. Thank you!');
+    echo '<input type="text" id="ml_success_message" name="ml_success_message" value="' . esc_attr($msg) . '" style="width:100%;" />';
+}
+function isw_ml_error_message_callback(){
+    $msg = get_option('ml_error_message', 'There was an error with your submission. Please try again.');
+    echo '<input type="text" id="ml_error_message" name="ml_error_message" value="' . esc_attr($msg) . '" style="width:100%;" />';
+}
+
 /* funkcije za proveru broja novih unosa i njihov pregled i prikazivanje */
 function isw_get_new_entries_count(){
 	global $wpdb;
@@ -369,15 +437,16 @@ function isw_reset_new_entries() {
 
 /* funkcija za slanje povratnog emaila */
 function isw_send_thankyou_email($to_email, $subscriber_name) {
-    $subject = get_option('isw_ml_email_subject', 'Thank you for your subscription!');
-    $template = get_option('isw_ml_email_template', 'Dear {{name}}, thank you for your subscription!');
+    $subject = get_option('email_subject', 'Thank you for your subscription!');
+    $template = get_option('email_template', 'Dear {{name}}, thank you for your subscription!');
     
     $message = str_replace('{{name}}', $subscriber_name, $template);
     
+    $from = get_option('email_from', 'noreply@domain.com');
     $headers = array(
-		'From: LiRideNET <noreply@liridenet.com>',
-		'Content-Type: text/plain; charset=UTF-8'
-	);
+        'From: ' . sanitize_text_field($from),
+        'Content-Type: text/plain; charset=UTF-8'
+    );
     
     wp_mail($to_email, $subject, $message, $headers);
 }
