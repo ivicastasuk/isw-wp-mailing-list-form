@@ -10,3 +10,9 @@ jQuery(document).ready(function ($) {
 jQuery(document).ready(function ($) {
     $('#input_border_color').wpColorPicker();
 });
+jQuery(document).ready(function ($) {
+    $('#btn_border_color').wpColorPicker();
+});
+jQuery(document).ready(function ($) {
+    $('#input_outline_color').wpColorPicker();
+});
