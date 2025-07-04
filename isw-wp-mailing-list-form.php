@@ -7,7 +7,7 @@
  * Author URI: 		https://www.stasuk.in.rs
  * License: 		GPL v3 or later
  * License URI: 	https://www.gnu.org/licenses/gpl-3.0.html
- * Text Domain: 	isw-wp-ml-form
+ * Text Domain: 	isw-wp-mailing-list-form
  * Domain Path: 	/languages
 */
 
@@ -39,11 +39,114 @@ function add_isw_mailinglist_form(){
     $button_box_shadow = get_option('button_box_shadow', '0 2px 6px rgba(0,0,0,0.15)');
     $input_outline_color = get_option('input_outline_color', '#2684FF');
 
+    $button_width_type = get_option('button_width_type', 'full');
+    $button_width_custom = get_option('button_width_custom', '');
+    $button_align = get_option('button_align', 'center');
+
+    switch ($button_width_type) {
+        case 'full':
+            $btn_width = '100%';
+            break;
+        case '1/2':
+            $btn_width = '50%';
+            break;
+        case '1/3':
+            $btn_width = '33.3333%';
+            break;
+        case '1/4':
+            $btn_width = '25%';
+            break;
+        case 'custom':
+            $btn_width = $button_width_custom !== '' ? $button_width_custom : 'auto';
+            break;
+        default:
+            $btn_width = '100%';
+    }
+
+    switch ($button_align) {
+        case 'left':
+            $btn_align_css = 'margin-left:0;margin-right:auto;';
+            break;
+        case 'center':
+            $btn_align_css = 'margin-left:auto;margin-right:auto;display:block;';
+            break;
+        case 'right':
+            $btn_align_css = 'margin-left:auto;margin-right:0;';
+            break;
+        default:
+            $btn_align_css = '';
+    }
+
+    $input_width_type = get_option('input_width_type', 'full');
+    $input_width_custom = get_option('input_width_custom', '');
+    $input_align = get_option('input_align', 'center');
+
+    switch ($input_width_type) {
+        case 'full':
+            $inp_width = '100%';
+            break;
+        case '1/2':
+            $inp_width = '50%';
+            break;
+        case '1/3':
+            $inp_width = '33.3333%';
+            break;
+        case '1/4':
+            $inp_width = '25%';
+            break;
+        case 'custom':
+            $inp_width = $input_width_custom !== '' ? $input_width_custom : 'auto';
+            break;
+        default:
+            $inp_width = '100%';
+    }
+
+    switch ($input_align) {
+        case 'left':
+            $inp_align_css = 'margin-left:0;margin-right:auto;';
+            break;
+        case 'center':
+            $inp_align_css = 'margin-left:auto;margin-right:auto;display:block;';
+            break;
+        case 'right':
+            $inp_align_css = 'margin-left:auto;margin-right:0;';
+            break;
+        default:
+            $inp_align_css = '';
+    }
+
+    $input_padding_top = get_option('input_padding_top', 16);
+    $input_padding_right = get_option('input_padding_right', 16);
+    $input_padding_bottom = get_option('input_padding_bottom', 16);
+    $input_padding_left = get_option('input_padding_left', 16);
+    $input_padding_same_all = get_option('input_padding_same_all', 1);
+
+    if ($input_padding_same_all) {
+        $input_padding = "{$input_padding_top}px";
+    } else {
+        $input_padding = "{$input_padding_top}px {$input_padding_right}px {$input_padding_bottom}px {$input_padding_left}px";
+    }
+
+    $button_padding_top = get_option('button_padding_top', 16);
+    $button_padding_right = get_option('button_padding_right', 16);
+    $button_padding_bottom = get_option('button_padding_bottom', 16);
+    $button_padding_left = get_option('button_padding_left', 16);
+    $button_padding_same_all = get_option('button_padding_same_all', 1);
+
+    if ($button_padding_same_all) {
+        $button_padding = "{$button_padding_top}px";
+    } else {
+        $button_padding = "{$button_padding_top}px {$button_padding_right}px {$button_padding_bottom}px {$button_padding_left}px";
+    }
+
+    $input_border_radius = get_option('input_border_radius', 16);
+    $button_border_radius = get_option('button_border_radius', 16);
+
     $isw_ml_form = $ml_message . '<form action="" method="post">
-                            <input type="text" name="isw_ml_name" placeholder="' . esc_attr($name_placeholder) . '" required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';" onfocus="this.style.outlineColor=\'' . esc_attr($input_outline_color) . '\';">
-                            <input type="email" name="isw_ml_email" placeholder="' . esc_attr($email_placeholder) . '" required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';" onfocus="this.style.outlineColor=\'' . esc_attr($input_outline_color) . '\';">
-                            ' . wp_nonce_field('isw_ml_form_action', 'isw_ml_form_nonce', true, false) . '
-                            <input type="submit" name="isw_ml_submit" value="' . esc_attr($button_text) . '" style="
+    <input type="text" name="isw_ml_name" placeholder="' . esc_attr($name_placeholder) . '" required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';width:' . esc_attr($inp_width) . '; padding:' . esc_attr($input_padding) . '; border-radius: ' . esc_attr($input_border_radius) . 'px;' . $inp_align_css . '" onfocus="this.style.outlineColor=\'' . esc_attr($input_outline_color) . '\';">
+    <input type="email" name="isw_ml_email" placeholder="' . esc_attr($email_placeholder) . '" required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';width:' . esc_attr($inp_width) . '; padding:' . esc_attr($input_padding) . '; border-radius: ' . esc_attr($input_border_radius) . 'px;' . $inp_align_css . '" onfocus="this.style.outlineColor=\'' . esc_attr($input_outline_color) . '\';">
+    ' . wp_nonce_field('isw_ml_form_action', 'isw_ml_form_nonce', true, false) . '
+    <input type="submit" name="isw_ml_submit" value="' . esc_attr($button_text) . '" style="
         background-color:' . esc_attr($button_bg_color) . ';
         color:' . esc_attr($button_text_color) . ';
         font-family:' . esc_attr($button_font_family) . ';
@@ -54,10 +157,14 @@ function add_isw_mailinglist_form(){
         border-width:' . esc_attr($button_border_width) . 'px;
         border-color:' . esc_attr($button_border_color) . ';
         border-style:' . esc_attr($button_border_style) . ';
+		border-radius:' . esc_attr($button_border_radius) . 'px;
         box-shadow:' . esc_attr($button_box_shadow) . ';
+        min-width:' . esc_attr($btn_width) . ';
+		padding:' . esc_attr($button_padding) . ';
+        ' . $btn_align_css . '
     ">
-                        </form>
-                    </div>';
+</form>
+</div>';
     return $isw_ml_form;
 }
 add_shortcode('add_isw_ml_form', 'add_isw_mailinglist_form');
@@ -186,43 +293,48 @@ function isw_ml_form_admin_page_dashboard(){
 
 function isw_ml_form_admin_page_customization(){
 
-	if (!current_user_can('manage_options')) {
-		wp_die('You don\'t have access to this page.');
-	}
-		
-	?>
-	<div class="wrap">
-		<h2>Form Customization</h2>
-		<form method="post" action="options.php">
-			<?php
-			settings_fields('isw-ml-input-settings-group');
-			do_settings_sections('isw-ml-input-settings');
-			submit_button();
-			?>
-		</form>
-		<form method="post" action="options.php">
-			<?php
-			settings_fields('isw-ml-button-settings-group');
-			do_settings_sections('isw-ml-button-settings');
-			submit_button();
-			?>
-		</form>
-		<form method="post" action="options.php">
-			<?php
-			settings_fields('isw-ml-response-mail-settings-group');
-			do_settings_sections('isw-ml-response-mail-settings');
-			submit_button();
-			?>
-		</form>
-	</div>
-	<?php
+    if (!current_user_can('manage_options')) {
+        wp_die('You don\'t have access to this page.');
+    }
+
+    // Prikaz notifikacije o uspešnom snimanju
+    if (isset($_GET['settings-updated']) && $_GET['settings-updated']) {
+        add_settings_error('isw_ml_messages', 'isw_ml_message', 'Settings saved successfully.', 'updated');
+    }
+    settings_errors('isw_ml_messages');
+    ?>
+    <div class="wrap">
+        <h2>Form Customization</h2>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('isw-ml-input-settings-group');
+            do_settings_sections('isw-ml-input-settings');
+            submit_button();
+            ?>
+        </form>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('isw-ml-button-settings-group');
+            do_settings_sections('isw-ml-button-settings');
+            submit_button();
+            ?>
+        </form>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('isw-ml-response-mail-settings-group');
+            do_settings_sections('isw-ml-response-mail-settings');
+            submit_button();
+            ?>
+        </form>
+    </div>
+    <?php
 }
 
 
 function isw_ml_admin_scripts() {
 	wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
-    wp_enqueue_script('isw-ml-admin-script', plugins_url('isw-wp-mailing-list-form.js', __FILE__), array('wp-color-picker'), false, true);
+    wp_enqueue_script('isw-ml-admin-script', plugins_url('isw-wp-mailing-list-form.js', __FILE__), array('wp-color-picker'), '1.0.0', true);
 }
 add_action('admin_enqueue_scripts', 'isw_ml_admin_scripts');
 
@@ -236,9 +348,48 @@ function isw_ml_settings_init(){
 		$_POST['button_text'] = sanitize_text_field($_POST['button_text']);
 	}
 
-	register_setting('isw-ml-input-settings-group', 'input_text_color');
-	register_setting('isw-ml-input-settings-group', 'input_border_color');
-	register_setting('isw-ml-input-settings-group', 'input_outline_color');
+	register_setting('isw-ml-input-settings-group', 'input_text_color', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-input-settings-group', 'input_border_color', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-input-settings-group', 'input_outline_color', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-input-settings-group', 'input_width_type', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-input-settings-group', 'input_width_custom', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-input-settings-group', 'input_align', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-input-settings-group', 'input_padding_top', ['sanitize_callback' => 'absint']);
+	register_setting('isw-ml-input-settings-group', 'input_padding_right', ['sanitize_callback' => 'absint']);
+	register_setting('isw-ml-input-settings-group', 'input_padding_bottom', ['sanitize_callback' => 'absint']);
+	register_setting('isw-ml-input-settings-group', 'input_padding_left', ['sanitize_callback' => 'absint']);
+	register_setting('isw-ml-input-settings-group', 'input_padding_same_all', ['sanitize_callback' => 'isw_ml_sanitize_checkbox']);
+	register_setting('isw-ml-input-settings-group', 'input_border_radius', ['sanitize_callback' => 'absint']);
+	register_setting('isw-ml-input-settings-group', 'input_name_placeholder', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-input-settings-group', 'input_email_placeholder', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-input-settings-group', 'ml_success_message', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-input-settings-group', 'ml_error_message', ['sanitize_callback' => 'sanitize_text_field']);
+
+	register_setting('isw-ml-button-settings-group', 'button_bg_color', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_text', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_text_color', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_font_family', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_font_size', ['sanitize_callback' => 'absint']);
+	register_setting('isw-ml-button-settings-group', 'button_font_style', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_line_height', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_border_width', ['sanitize_callback' => 'absint']);
+	register_setting('isw-ml-button-settings-group', 'button_border_color', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_border_style', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_box_shadow', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_font_weight', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_width_type', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_width_custom', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_align', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-button-settings-group', 'button_padding_top', ['sanitize_callback' => 'absint']);
+	register_setting('isw-ml-button-settings-group', 'button_padding_right', ['sanitize_callback' => 'absint']);
+	register_setting('isw-ml-button-settings-group', 'button_padding_bottom', ['sanitize_callback' => 'absint']);
+	register_setting('isw-ml-button-settings-group', 'button_padding_left', ['sanitize_callback' => 'absint']);
+	register_setting('isw-ml-button-settings-group', 'button_padding_same_all', ['sanitize_callback' => 'isw_ml_sanitize_checkbox']);
+	register_setting('isw-ml-button-settings-group', 'button_border_radius', ['sanitize_callback' => 'absint']);
+
+	register_setting('isw-ml-response-mail-settings-group', 'email_from', ['sanitize_callback' => 'sanitize_email']);
+	register_setting('isw-ml-response-mail-settings-group', 'email_subject', ['sanitize_callback' => 'sanitize_text_field']);
+	register_setting('isw-ml-response-mail-settings-group', 'email_template', ['sanitize_callback' => 'sanitize_textarea_field']);
 
 	add_settings_section(
 		'isw-ml-settings-input-section',
@@ -271,18 +422,63 @@ function isw_ml_settings_init(){
     'isw-ml-settings-input-section'
 );
 
-	register_setting('isw-ml-button-settings-group', 'button_bg_color');
-	register_setting('isw-ml-button-settings-group', 'button_text');
-	register_setting('isw-ml-button-settings-group', 'button_text_color');
-	register_setting('isw-ml-button-settings-group', 'button_font_family');
-	register_setting('isw-ml-button-settings-group', 'button_font_size');
-	register_setting('isw-ml-button-settings-group', 'button_font_style');
-	register_setting('isw-ml-button-settings-group', 'button_line_height');
-	register_setting('isw-ml-button-settings-group', 'button_border_width');
-	register_setting('isw-ml-button-settings-group', 'button_border_color');
-	register_setting('isw-ml-button-settings-group', 'button_border_style');
-	register_setting('isw-ml-button-settings-group', 'button_box_shadow');
-	register_setting('isw-ml-button-settings-group', 'button_font_weight');
+	add_settings_field(
+    'input_width_type',
+    'Input Width',
+    'isw_ml_input_width_type_callback',
+    'isw-ml-input-settings',
+    'isw-ml-settings-input-section'
+);
+add_settings_field(
+    'input_width_custom',
+    'Custom Input Width (px or %)',
+    'isw_ml_input_width_custom_callback',
+    'isw-ml-input-settings',
+    'isw-ml-settings-input-section'
+);
+add_settings_field(
+    'input_align',
+    'Input Alignment',
+    'isw_ml_input_align_callback',
+    'isw-ml-input-settings',
+    'isw-ml-settings-input-section'
+);
+add_settings_field(
+    'input_padding_fields',
+    'Input Padding (px)',
+    'isw_ml_input_padding_callback',
+    'isw-ml-input-settings',
+    'isw-ml-settings-input-section'
+);
+add_settings_field(
+    'input_border_radius',
+    'Input Border Radius (px)',
+    'isw_ml_input_border_radius_callback',
+    'isw-ml-input-settings',
+    'isw-ml-settings-input-section'
+);
+
+	// register_setting('isw-ml-button-settings-group', 'button_bg_color');
+	// register_setting('isw-ml-button-settings-group', 'button_text');
+	// register_setting('isw-ml-button-settings-group', 'button_text_color');
+	// register_setting('isw-ml-button-settings-group', 'button_font_family');
+	// register_setting('isw-ml-button-settings-group', 'button_font_size');
+	// register_setting('isw-ml-button-settings-group', 'button_font_style');
+	// register_setting('isw-ml-button-settings-group', 'button_line_height');
+	// register_setting('isw-ml-button-settings-group', 'button_border_width');
+	// register_setting('isw-ml-button-settings-group', 'button_border_color');
+	// register_setting('isw-ml-button-settings-group', 'button_border_style');
+	// register_setting('isw-ml-button-settings-group', 'button_box_shadow');
+	// register_setting('isw-ml-button-settings-group', 'button_font_weight');
+	// register_setting('isw-ml-button-settings-group', 'button_width_type');
+	// register_setting('isw-ml-button-settings-group', 'button_width_custom');
+	// register_setting('isw-ml-button-settings-group', 'button_align');
+	// register_setting('isw-ml-button-settings-group', 'button_padding_top');
+	// register_setting('isw-ml-button-settings-group', 'button_padding_right');
+	// register_setting('isw-ml-button-settings-group', 'button_padding_bottom');
+	// register_setting('isw-ml-button-settings-group', 'button_padding_left');
+	// register_setting('isw-ml-button-settings-group', 'button_padding_same_all');
+	// register_setting('isw-ml-button-settings-group', 'button_border_radius');
 
 	add_settings_section(
 		'isw-ml-settings-button-section',
@@ -375,10 +571,45 @@ add_settings_field(
     'isw-ml-button-settings',
     'isw-ml-settings-button-section'
 );
+add_settings_field(
+    'button_width_type',
+    'Button Width',
+    'isw_ml_btn_width_type_callback',
+    'isw-ml-button-settings',
+    'isw-ml-settings-button-section'
+);
+add_settings_field(
+    'button_width_custom',
+    'Custom Button Width (px or %)',
+    'isw_ml_btn_width_custom_callback',
+    'isw-ml-button-settings',
+    'isw-ml-settings-button-section'
+);
+add_settings_field(
+    'button_align',
+    'Button Alignment',
+    'isw_ml_btn_align_callback',
+    'isw-ml-button-settings',
+    'isw-ml-settings-button-section'
+);
+add_settings_field(
+    'button_padding_fields',
+    'Button Padding (px)',
+    'isw_ml_button_padding_callback',
+    'isw-ml-button-settings',
+    'isw-ml-settings-button-section'
+);
+add_settings_field(
+    'button_border_radius',
+    'Button Border Radius (px)',
+    'isw_ml_button_border_radius_callback',
+    'isw-ml-button-settings',
+    'isw-ml-settings-button-section'
+);
 
-	register_setting('isw-ml-response-mail-settings-group', 'email_from');
-	register_setting('isw-ml-response-mail-settings-group', 'email_subject');
-	register_setting('isw-ml-response-mail-settings-group', 'email_template');
+	// register_setting('isw-ml-response-mail-settings-group', 'email_from');
+	// register_setting('isw-ml-response-mail-settings-group', 'email_subject');
+	// register_setting('isw-ml-response-mail-settings-group', 'email_template');
 
 	add_settings_section(
 		'isw-ml-settings-response-mail-section',
@@ -411,10 +642,10 @@ add_settings_field(
 		'isw-ml-settings-response-mail-section'
 	);
 
-	register_setting('isw-ml-input-settings-group', 'input_name_placeholder');
-	register_setting('isw-ml-input-settings-group', 'input_email_placeholder');
-	register_setting('isw-ml-input-settings-group', 'ml_success_message');
-	register_setting('isw-ml-input-settings-group', 'ml_error_message');
+	// register_setting('isw-ml-input-settings-group', 'input_name_placeholder');
+	// register_setting('isw-ml-input-settings-group', 'input_email_placeholder');
+	// register_setting('isw-ml-input-settings-group', 'ml_success_message');
+	// register_setting('isw-ml-input-settings-group', 'ml_error_message');
 
 	add_settings_field(
 		'input_name_placeholder',
@@ -484,7 +715,7 @@ function isw_ml_btn_text_color_callback(){
 
 function isw_ml_btn_text_callback(){
 	$button_text = get_option('button_text', 'Subscribe to our mailing list');
-	echo '<input type="text" id="btn_text" name="button_text" value="' . sanitize_text_field($button_text) . '" style="width: 100%;" />';
+	echo '<input type="text" id="btn_text" name="button_text" value="' . esc_attr($button_text) . '" style="width: 100%;" />';
 }
 function isw_ml_btn_font_family_callback(){
     $button_font_family = get_option('button_font_family', 'inherit');
@@ -578,9 +809,51 @@ function isw_ml_btn_border_style_callback(){
     </select>';
 }
 
-function isw_ml_btn_box_shadow_callback(){
-	$button_box_shadow = get_option('button_box_shadow', '0 2px 6px rgba(0,0,0,0.15)');
-	echo '<input type="text" id="btn_box_shadow" name="button_box_shadow" value="' . esc_attr($button_box_shadow) . '" style="width:100%;" placeholder="npr: 0 2px 6px rgba(0,0,0,0.15)" />';
+function isw_ml_btn_box_shadow_callback() {
+    // Podrazumevane vrednosti
+    $box_shadow = get_option('button_box_shadow', '0 2px 6px 0 rgba(0,0,0,0.15)');
+    $inset = '';
+    $h_offset = 0;
+    $v_offset = 2;
+    $blur = 6;
+    $spread = 0;
+    $color = 'rgba(0,0,0,0.15)';
+
+    // Parsiranje vrednosti iz baze
+    if (preg_match('/^(inset\s+)?(-?\d+)px\s+(-?\d+)px\s+(\d+)px\s+(-?\d+)px\s+(.+)$/', $box_shadow, $matches)) {
+        $inset = trim($matches[1]) === 'inset' ? 'inset' : '';
+        $h_offset = intval($matches[2]);
+        $v_offset = intval($matches[3]);
+        $blur = intval($matches[4]);
+        $spread = intval($matches[5]);
+        $color = trim($matches[6]);
+    } elseif (preg_match('/^(inset\s+)?(-?\d+)px\s+(-?\d+)px\s+(\d+)px\s+(.+)$/', $box_shadow, $matches)) {
+        // fallback za 4 vrednosti (bez spread)
+        $inset = trim($matches[1]) === 'inset' ? 'inset' : '';
+        $h_offset = intval($matches[2]);
+        $v_offset = intval($matches[3]);
+        $blur = intval($matches[4]);
+        $spread = 0;
+        $color = trim($matches[5]);
+    }
+
+    // Očisti boju od px viška na početku (ako je greškom ostalo)
+    $color = preg_replace('/^(-?\d+px\s*)+/', '', $color);
+    ?>
+    <div id="isw-box-shadow-controls">
+        <label>H-Offset: <input type="range" min="-50" max="50" id="isw_h_offset" value="<?php echo esc_attr($h_offset); ?>"> <input type="number" min="-50" max="50" id="isw_h_offset_num" value="<?php echo esc_attr($h_offset); ?>"> px</label><br>
+        <label>V-Offset: <input type="range" min="-50" max="50" id="isw_v_offset" value="<?php echo esc_attr($v_offset); ?>"> <input type="number" min="-50" max="50" id="isw_v_offset_num" value="<?php echo esc_attr($v_offset); ?>"> px</label><br>
+        <label>Blur: <input type="range" min="0" max="100" id="isw_blur" value="<?php echo esc_attr($blur); ?>"> <input type="number" min="0" max="100" id="isw_blur_num" value="<?php echo esc_attr($blur); ?>"> px</label><br>
+        <label>Spread: <input type="range" min="-50" max="50" id="isw_spread" value="<?php echo esc_attr($spread); ?>"> <input type="number" min="-50" max="50" id="isw_spread_num" value="<?php echo esc_attr($spread); ?>"> px</label><br>
+        <label>Color: <input type="text" id="isw_box_shadow_color" value="<?php echo esc_attr($color); ?>" class="color-field" /></label><br>
+        <label><input type="checkbox" id="isw_box_shadow_inset" <?php checked($inset, 'inset'); ?>> Inset</label>
+        <input type="hidden" id="btn_box_shadow" name="button_box_shadow" value="<?php echo esc_attr($box_shadow); ?>" />
+        <div style="margin-top:10px;">
+            <span>Preview:</span>
+            <div id="isw_box_shadow_preview" style="display:inline-block;width:60px;height:30px;background:#fff;border:1px solid #ccc;vertical-align:middle;"></div>
+        </div>
+    </div>
+    <?php
 }
 
 /* response mail */
@@ -589,18 +862,18 @@ function isw_ml_settings_response_mail_section_callback(){
 }
 
 function isw_ml_response_mail_from_callback(){
-	$email_from = get_option('email_from', 'noreply@domain.com');
-	echo '<input type="email" id="email_from" name="email_from" value="' . sanitize_email($email_from) . '" style="width: 100%;" />';
+    $email_from = get_option('email_from', 'noreply@domain.com');
+    echo '<input type="email" id="email_from" name="email_from" value="' . esc_attr($email_from) . '" style="width: 100%;" />';
 }
 
 function isw_ml_response_mail_subject_callback(){
 	$email_subject = get_option('email_subject', 'Email Subject');
-	echo '<input type="text" id="email_subject" name="email_subject" value="' . sanitize_text_field($email_subject) . '" style="width: 100%;" />';
+	echo '<input type="text" id="email_subject" name="email_subject" value="' . esc_attr($email_subject) . '" style="width: 100%;" />';
 }
 
 function isw_ml_response_mail_template_callback(){
 	$email_template = get_option('email_template', 'Dear {{name}}, thank you for your subscription!');
-	echo '<textarea id="email_template" name="email_template" rows="5" style="width: 100%;">' . sanitize_textarea_field($email_template) .'</textarea>';
+	echo '<textarea id="email_template" name="email_template" rows="5" style="width: 100%;">' . esc_textarea($email_template) .'</textarea>';
 }
 
 /* input placeholders */
@@ -655,7 +928,8 @@ function isw_send_thankyou_email($to_email, $subscriber_name) {
     wp_mail($to_email, $subject, $message, $headers);
 }
 
-add_action('wp_footer', function() use ($input_outline_color) {
+add_action('wp_footer', function() {
+    $input_outline_color = get_option('input_outline_color', '#2684FF');
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function(){
@@ -674,3 +948,159 @@ add_action('wp_footer', function() use ($input_outline_color) {
     </script>
     <?php
 });
+
+function isw_ml_btn_width_type_callback() {
+    $value = get_option('button_width_type', 'full');
+    ?>
+    <select id="btn_width_type" name="button_width_type">
+        <option value="full" <?php selected($value, 'full'); ?>>Full width</option>
+        <option value="1/2" <?php selected($value, '1/2'); ?>>1/2</option>
+        <option value="1/3" <?php selected($value, '1/3'); ?>>1/3</option>
+        <option value="1/4" <?php selected($value, '1/4'); ?>>1/4</option>
+        <option value="custom" <?php selected($value, 'custom'); ?>>Custom</option>
+    </select>
+    <?php
+}
+
+function isw_ml_btn_width_custom_callback() {
+    $value = get_option('button_width_custom', '');
+    ?>
+    <input type="text" id="btn_width_custom" name="button_width_custom" value="<?php echo esc_attr($value); ?>" placeholder="npr: 200px ili 50%" />
+    <span style="color:#888;">(Unesite npr: 200px ili 50%)</span>
+    <?php
+}
+
+function isw_ml_btn_align_callback() {
+    $value = get_option('button_align', 'center');
+    ?>
+    <select id="btn_align" name="button_align">
+        <option value="left" <?php selected($value, 'left'); ?>>Left</option>
+        <option value="center" <?php selected($value, 'center'); ?>>Center</option>
+        <option value="right" <?php selected($value, 'right'); ?>>Right</option>
+    </select>
+    <?php
+}
+
+function isw_ml_input_width_type_callback() {
+    $value = get_option('input_width_type', 'full');
+    ?>
+    <select id="input_width_type" name="input_width_type">
+        <option value="full" <?php selected($value, 'full'); ?>>Full width</option>
+        <option value="1/2" <?php selected($value, '1/2'); ?>>1/2</option>
+        <option value="1/3" <?php selected($value, '1/3'); ?>>1/3</option>
+        <option value="1/4" <?php selected($value, '1/4'); ?>>1/4</option>
+        <option value="custom" <?php selected($value, 'custom'); ?>>Custom</option>
+    </select>
+    <?php
+}
+
+function isw_ml_input_width_custom_callback() {
+    $value = get_option('input_width_custom', '');
+    ?>
+    <input type="text" id="input_width_custom" name="input_width_custom" value="<?php echo esc_attr($value); ?>" placeholder="npr: 200px ili 50%" />
+    <span style="color:#888;">(Unesite npr: 200px ili 50%)</span>
+    <?php
+}
+
+function isw_ml_input_align_callback() {
+    $value = get_option('input_align', 'center');
+    ?>
+    <select id="input_align" name="input_align">
+        <option value="left" <?php selected($value, 'left'); ?>>Left</option>
+        <option value="center" <?php selected($value, 'center'); ?>>Center</option>
+        <option value="right" <?php selected($value, 'right'); ?>>Right</option>
+    </select>
+    <?php
+}
+
+function isw_ml_input_padding_callback() {
+    $same = get_option('input_padding_same_all', 1);
+    $top = get_option('input_padding_top', 16);
+    $right = get_option('input_padding_right', 16);
+    $bottom = get_option('input_padding_bottom', 16);
+    $left = get_option('input_padding_left', 16);
+    ?>
+    <label>
+        <input type="checkbox" id="input_padding_same_all" name="input_padding_same_all" value="1" <?php checked($same, 1); ?> />
+        Isti padding za sva 4 pravca
+    </label>
+    <div id="input-padding-fields" style="margin-top:8px;">
+        <label>Gore: <input type="number" id="input_padding_top" name="input_padding_top" value="<?php echo esc_attr($top); ?>" min="0" style="width:60px;" /> px</label>
+        <label style="margin-left:10px;">Desno: <input type="number" id="input_padding_right" name="input_padding_right" value="<?php echo esc_attr($right); ?>" min="0" style="width:60px;" /> px</label>
+        <label style="margin-left:10px;">Dole: <input type="number" id="input_padding_bottom" name="input_padding_bottom" value="<?php echo esc_attr($bottom); ?>" min="0" style="width:60px;" /> px</label>
+        <label style="margin-left:10px;">Levo: <input type="number" id="input_padding_left" name="input_padding_left" value="<?php echo esc_attr($left); ?>" min="0" style="width:60px;" /> px</label>
+    </div>
+    <script>
+    jQuery(function($){
+        function syncPaddingFields() {
+            if ($('#input_padding_same_all').is(':checked')) {
+                var val = $('#input_padding_top').val();
+                $('#input_padding_right, #input_padding_bottom, #input_padding_left').val(val).prop('readonly', true);
+            } else {
+                $('#input_padding_right, #input_padding_bottom, #input_padding_left').prop('readonly', false);
+            }
+        }
+        $('#input_padding_same_all').on('change', syncPaddingFields);
+        $('#input_padding_top').on('input', function(){
+            if ($('#input_padding_same_all').is(':checked')) {
+                $('#input_padding_right, #input_padding_bottom, #input_padding_left').val(this.value);
+            }
+        });
+        syncPaddingFields();
+    });
+    </script>
+    <?php
+}
+
+function isw_ml_button_padding_callback() {
+    $same = get_option('button_padding_same_all', 1);
+    $top = get_option('button_padding_top', 16);
+    $right = get_option('button_padding_right', 16);
+    $bottom = get_option('button_padding_bottom', 16);
+    $left = get_option('button_padding_left', 16);
+    ?>
+    <label>
+        <input type="checkbox" id="button_padding_same_all" name="button_padding_same_all" value="1" <?php checked($same, 1); ?> />
+        Isti padding za sva 4 pravca
+    </label>
+    <div id="button-padding-fields" style="margin-top:8px;">
+        <label>Gore: <input type="number" id="button_padding_top" name="button_padding_top" value="<?php echo esc_attr($top); ?>" min="0" style="width:60px;" /> px</label>
+        <label style="margin-left:10px;">Desno: <input type="number" id="button_padding_right" name="button_padding_right" value="<?php echo esc_attr($right); ?>" min="0" style="width:60px;" /> px</label>
+        <label style="margin-left:10px;">Dole: <input type="number" id="button_padding_bottom" name="button_padding_bottom" value="<?php echo esc_attr($bottom); ?>" min="0" style="width:60px;" /> px</label>
+        <label style="margin-left:10px;">Levo: <input type="number" id="button_padding_left" name="button_padding_left" value="<?php echo esc_attr($left); ?>" min="0" style="width:60px;" /> px</label>
+    </div>
+    <script>
+    jQuery(function($){
+        function syncBtnPaddingFields() {
+            if ($('#button_padding_same_all').is(':checked')) {
+                var val = $('#button_padding_top').val();
+                $('#button_padding_right, #button_padding_bottom, #button_padding_left').val(val).prop('readonly', true);
+            } else {
+                $('#button_padding_right, #button_padding_bottom, #button_padding_left').prop('readonly', false);
+            }
+        }
+        $('#button_padding_same_all').on('change', syncBtnPaddingFields);
+        $('#button_padding_top').on('input', function(){
+            if ($('#button_padding_same_all').is(':checked')) {
+                $('#button_padding_right, #button_padding_bottom, #button_padding_left').val(this.value);
+            }
+        });
+        syncBtnPaddingFields();
+    });
+    </script>
+    <?php
+}
+
+function isw_ml_input_border_radius_callback(){
+    $value = get_option('input_border_radius', 16);
+    echo '<input type="number" id="input_border_radius" name="input_border_radius" value="' . esc_attr($value) . '" min="0" style="width:80px;" /> px';
+}
+
+function isw_ml_button_border_radius_callback(){
+    $value = get_option('button_border_radius', 16);
+    echo '<input type="number" id="button_border_radius" name="button_border_radius" value="' . esc_attr($value) . '" min="0" style="width:80px;" /> px';
+}
+
+function isw_ml_sanitize_checkbox($value) {
+    return $value ? 1 : 0;
+}
