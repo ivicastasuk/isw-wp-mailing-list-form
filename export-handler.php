@@ -40,9 +40,6 @@ if($data && count($data) > 0){
         fputcsv($f, $line_data, $delimiter);
     }
 
-    // fclose() je dozvoljen za php://output, ali ako želite da izbegnete upozorenje:
-    // Ne morate ga eksplicitno pozivati, PHP će ga automatski zatvoriti na kraju skripte.
-    // fclose($f);
 }
 
 exit;

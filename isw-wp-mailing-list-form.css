@@ -17,6 +17,12 @@
     text-align: center;
 }
 
+.isw-ml-error {
+    border: 1px solid #f7a3a3;
+    background-color: #722323;
+    color: #ffffff; 
+}
+
 .isw-ml-form-container form {
     width: 100%;
     display: flex;
@@ -48,4 +54,9 @@
 .isw-ml-form-container form input[type=text]::placeholder,
 .isw-ml-form-container form input[type=email]::placeholder {
     color: #808080;
+}
+
+.isw-ml-form-container form input[type=text]:focus,
+.isw-ml-form-container form input[type=email]:focus {
+    outline: 2px solid #4ABB6B;
 }

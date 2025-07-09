@@ -14,13 +14,12 @@
 function add_isw_mailinglist_form(){
     $ml_message = '';
     $ml_message .= '<div class="isw-ml-form-container">';
-    if(isset($_GET['ml_submitted']) && $_GET['ml_submitted'] == '1'){
-        $ml_message .= '<div class="isw-ml-form-message">' . esc_html(get_option('ml_success_message', 'Your E-mail address was successfully submitted. Thank you!')) . '</div>'; 
-    }
-    if(isset($_GET['ml_error']) && $_GET['ml_error'] == '1'){
-        $ml_message .= '<div class="isw-ml-form-message isw-ml-error">' . esc_html(get_option('ml_error_message', 'There was an error with your submission. Please try again.')) . '</div>'; 
-    }
-
+    // if(isset($_GET['ml_submitted']) && $_GET['ml_submitted'] == '1'){
+    //     $ml_message .= '<div class="isw-ml-form-message">' . esc_html(get_option('ml_success_message', 'Your E-mail address was successfully submitted. Thank you!')) . '</div>'; 
+    // }
+    // if(isset($_GET['ml_error']) && $_GET['ml_error'] == '1'){
+    //     $ml_message .= '<div class="isw-ml-form-message isw-ml-error">' . esc_html(get_option('ml_error_message', 'There was an error with your submission. Please try again.')) . '</div>'; 
+    // }
     $input_text_color = get_option('input_text_color', '#001f53');
     $input_border_color = get_option('input_border_color', '#808080');
     $button_bg_color = get_option('button_bg_color', '#001f53');
@@ -142,29 +141,31 @@ function add_isw_mailinglist_form(){
     $input_border_radius = get_option('input_border_radius', 16);
     $button_border_radius = get_option('button_border_radius', 16);
 
-    $isw_ml_form = $ml_message . '<form action="" method="post">
+    $isw_ml_form = $ml_message . '<form id="isw-ml-form" action="" method="post">
     <input type="text" name="isw_ml_name" placeholder="' . esc_attr($name_placeholder) . '" required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';width:' . esc_attr($inp_width) . '; padding:' . esc_attr($input_padding) . '; border-radius: ' . esc_attr($input_border_radius) . 'px;' . $inp_align_css . '" onfocus="this.style.outlineColor=\'' . esc_attr($input_outline_color) . '\';">
     <input type="email" name="isw_ml_email" placeholder="' . esc_attr($email_placeholder) . '" required style="color:' . esc_attr($input_text_color) . '; border-color:' . esc_attr($input_border_color) . ';width:' . esc_attr($inp_width) . '; padding:' . esc_attr($input_padding) . '; border-radius: ' . esc_attr($input_border_radius) . 'px;' . $inp_align_css . '" onfocus="this.style.outlineColor=\'' . esc_attr($input_outline_color) . '\';">
+    <input type="hidden" name="isw_ml_submit" value="1" />
     ' . wp_nonce_field('isw_ml_form_action', 'isw_ml_form_nonce', true, false) . '
-    <input type="submit" name="isw_ml_submit" value="' . esc_attr($button_text) . '" style="
-        background-color:' . esc_attr($button_bg_color) . ';
-        color:' . esc_attr($button_text_color) . ';
-        font-family:' . esc_attr($button_font_family) . ';
-        font-size:' . esc_attr($button_font_size) . 'px;
-        font-style:' . esc_attr($button_font_style) . ';
-        font-weight:' . esc_attr($button_font_weight) . ';
+    <input type="submit" name="isw_ml_submit_btn" value="' . esc_attr($button_text) . '" style="
+    background-color:' . esc_attr($button_bg_color) . ';
+    color:' . esc_attr($button_text_color) . ';
+    font-family:' . esc_attr($button_font_family) . ';
+    font-size:' . esc_attr($button_font_size) . 'px;
+    font-style:' . esc_attr($button_font_style) . ';
+    font-weight:' . esc_attr($button_font_weight) . ';
         line-height:' . esc_attr($button_line_height) . ';
         border-width:' . esc_attr($button_border_width) . 'px;
         border-color:' . esc_attr($button_border_color) . ';
         border-style:' . esc_attr($button_border_style) . ';
-		border-radius:' . esc_attr($button_border_radius) . 'px;
+        border-radius:' . esc_attr($button_border_radius) . 'px;
         box-shadow:' . esc_attr($button_box_shadow) . ';
         min-width:' . esc_attr($btn_width) . ';
-		padding:' . esc_attr($button_padding) . ';
+        padding:' . esc_attr($button_padding) . ';
         ' . $btn_align_css . '
-    ">
-</form>
-</div>';
+        ">
+        </form>';
+    $isw_ml_form .= '<div id="isw-ml-form-message"></div></div>';
+
     return $isw_ml_form;
 }
 add_shortcode('add_isw_ml_form', 'add_isw_mailinglist_form');
@@ -179,23 +180,42 @@ function isw_mailing_list_form_styles(){
 add_action('wp_enqueue_scripts', 'isw_mailing_list_form_styles');
 
 function save_ml_form_to_db(){
-    if(isset($_POST['isw_ml_submit'])){
-        if ( ! isset($_POST['isw_ml_form_nonce']) || ! wp_verify_nonce($_POST['isw_ml_form_nonce'], 'isw_ml_form_action') ) {
-            $redirect_url = add_query_arg('ml_error', '1', wp_get_referer());
-            wp_safe_redirect($redirect_url);
+    // Ako je AJAX zahtev, ne radi ništa!
+    if ( defined('DOING_AJAX') && DOING_AJAX ) {
+        return;
+    }
+    if ( isset( $_POST['isw_ml_submit'] ) ) {
+        // Nonce provera i sanitizacija
+        $nonce = isset( $_POST['isw_ml_form_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['isw_ml_form_nonce'] ) ) : '';
+        if ( ! $nonce || ! wp_verify_nonce( $nonce, 'isw_ml_form_action' ) ) {
+            $redirect_url = add_query_arg( 'ml_error', '1', wp_get_referer() );
+            wp_safe_redirect( $redirect_url );
             exit;
         }
         global $wpdb;
-        $name = sanitize_text_field($_POST['isw_ml_name']);
-        $email = sanitize_email($_POST['isw_ml_email']);
-        if ( ! is_email($email) ) {
-            $redirect_url = add_query_arg('ml_error', '1', wp_get_referer());
-            wp_safe_redirect($redirect_url);
+
+        // Provera i unslash/sanitize inputa
+        $name  = isset( $_POST['isw_ml_name'] ) ? sanitize_text_field( wp_unslash( $_POST['isw_ml_name'] ) ) : '';
+        $email = isset( $_POST['isw_ml_email'] ) ? sanitize_email( wp_unslash( $_POST['isw_ml_email'] ) ) : '';
+
+        if ( ! is_email( $email ) ) {
+            $redirect_url = add_query_arg( 'ml_error', '1', wp_get_referer() );
+            wp_safe_redirect( $redirect_url );
             exit;
         }
         $isw_table = $wpdb->prefix . 'isw_ml';
 
-        if($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $isw_table)) != $isw_table){
+        // Provera da li tabela postoji - koristi wp_cache_get za keširanje rezultata
+        $cache_key = 'isw_ml_table_exists_' . $isw_table;
+        $table_exists = wp_cache_get( $cache_key );
+        if ( false === $table_exists ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+            $table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $isw_table ) ) === $isw_table;
+            wp_cache_set( $cache_key, $table_exists, '', 3600 );
+        }
+
+        // Priprema SQL upita za kreiranje tabele (dozvoljeno je koristiti dbDelta)
+        if ( ! $table_exists ) {
             $sql =  "CREATE TABLE $isw_table (
                     id int(11) NOT NULL AUTO_INCREMENT,
                     name VARCHAR(255) NOT NULL,
@@ -203,20 +223,23 @@ function save_ml_form_to_db(){
                     is_new int(11) NOT NULL,
                     UNIQUE KEY id (id)
                     );";
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-            dbDelta($sql);
+            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+            dbDelta( $sql );
+            wp_cache_set( $cache_key, true, '', 3600 );
         }
-        
-        $wpdb->insert($isw_table, array('name' => $name, 'email' => $email, 'is_new' => 1));
 
-        isw_send_thankyou_email($email, $name);
+        // Upis podataka (insert je dozvoljen)
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        $wpdb->insert( $isw_table, array( 'name' => $name, 'email' => $email, 'is_new' => 1 ) );
 
-        $redirect_url = add_query_arg('ml_submitted', '1', wp_get_referer());
-        wp_safe_redirect($redirect_url);
+        isw_send_thankyou_email( $email, $name );
+
+        // $redirect_url = add_query_arg( 'ml_submitted', '1', wp_get_referer() );
+        // wp_safe_redirect( $redirect_url );
         exit;
     }
 }
-add_action('init', 'save_ml_form_to_db');
+add_action( 'init', 'save_ml_form_to_db' );
 
 function isw_ml_form_menu(){
 
@@ -256,49 +279,88 @@ function isw_ml_form_menu(){
 }
 add_action('admin_menu', 'isw_ml_form_menu');
 
-function isw_ml_form_admin_page_dashboard(){
-	if (!current_user_can('manage_options')) {
-		wp_die('You don\'t have access to this page.');
-	}
+function isw_ml_form_admin_page_dashboard() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( 'You don\'t have access to this page.' );
+    }
 
-	if(isset($_POST['export_emails'])){
-		isw_ml_form_export_csv();
-	}
+    // Brisanje unosa po ID-u
+    if (
+        isset($_GET['isw_ml_delete']) &&
+        isset($_GET['_wpnonce']) &&
+        wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'isw_ml_delete_' . absint($_GET['isw_ml_delete']))
+    ) {
+        global $wpdb;
+        $isw_table = $wpdb->prefix . 'isw_ml';
+        $delete_id = absint($_GET['isw_ml_delete']);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        $wpdb->delete($isw_table, array('id' => $delete_id), array('%d'));
+        // Očisti keš
+        wp_cache_delete('isw_ml_all_entries_' . $isw_table);
+        wp_cache_delete('isw_ml_new_entries_count_' . $isw_table);
+        // Redirektuj bez parametara
+        $redirect_url = admin_url('admin.php?page=isw-ml-form-dashboard');
+        wp_safe_redirect( $redirect_url );
+        exit;
+    }
 
-	global $wpdb;
-	$isw_table = $wpdb->prefix . 'isw_ml';
+    // Dodajte nonce proveru za export_emails ako je potrebno
+    if ( isset( $_POST['export_emails'] ) && isset( $_POST['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'isw_ml_export_emails' ) ) {
+        isw_ml_form_export_csv();
+    }
 
-	$data = $wpdb->get_results("SELECT * FROM $isw_table");
+    global $wpdb;
+    $isw_table = $wpdb->prefix . 'isw_ml';
 
+    // Keširanje rezultata tabele
+    $cache_key = 'isw_ml_all_entries_' . $isw_table;
+    $data = wp_cache_get( $cache_key );
+    if ( false === $data ) {
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        $data = $wpdb->get_results( "SELECT * FROM $isw_table" );
+        wp_cache_set( $cache_key, $data, '', 300 );
+    }
 
-	echo '<div class="wrap"><h1>Subscribed emails</h1>';
-	echo '<div class="notice"><h3>How to...</h3><p>Add <code>[add_isw_ml_form]</code> shortcode where you want to add your mailing list form.</p></div>';
-	echo '<table class="wp-list-table widefat fixed striped">';
-	echo '<thead><tr><th>Name</th><th>Email</th></tr></thead>';
-	echo '<tbody>';
+    echo '<div class="wrap"><h1>Subscribed emails</h1>';
+    echo '<div class="notice"><h3>How to...</h3><p>Add <code>[add_isw_ml_form]</code> shortcode where you want to add your mailing list form.</p></div>';
+    echo '<table class="wp-list-table widefat fixed striped">';
+    echo '<thead><tr><th>Name</th><th>Email</th><th>Delete</th></tr></thead>';
+    echo '<tbody>';
 
-	foreach($data as $item){
-		echo '<tr><td>' . esc_html($item->name) . '</td><td>' . esc_html($item->email) . '</td></tr>';
-	}
+    foreach($data as $item){
+        $delete_url = wp_nonce_url(
+            add_query_arg(
+                array(
+                    'isw_ml_delete' => $item->id
+                )
+            ),
+            'isw_ml_delete_' . $item->id
+        );
+        echo '<tr>
+            <td>' . esc_html($item->name) . '</td>
+            <td>' . esc_html($item->email) . '</td>
+            <td><a href="' . esc_url($delete_url) . '" onclick="return confirm(\'Are you sure you want to delete this entry?\')" style="color:red;font-weight:bold;text-decoration:none;">&#10006;</a></td>
+        </tr>';
+    }
 
-	$export_url = wp_nonce_url(plugins_url('export-handler.php', __FILE__), 'isw_ml_export_csv');
+    $export_url = wp_nonce_url(plugins_url('export-handler.php', __FILE__), 'isw_ml_export_csv');
 
-	echo '</tbody></table>';
-	echo '<div class="tablenav">';
-	echo '<a href="' . esc_url($export_url) . '" class="button alignright">Export as CSV</a>';
-	echo '</div>';
-	echo '</div>';
+    echo '</tbody></table>';
+    echo '<div class="tablenav">';
+    echo '<a href="' . esc_url($export_url) . '" class="button alignright">Export as CSV</a>';
+    echo '</div>';
+    echo '</div>';
 
 }
 
 function isw_ml_form_admin_page_customization(){
-
     if (!current_user_can('manage_options')) {
         wp_die('You don\'t have access to this page.');
     }
 
     // Prikaz notifikacije o uspešnom snimanju
-    if (isset($_GET['settings-updated']) && $_GET['settings-updated']) {
+    $settings_updated = isset($_GET['settings-updated']) ? sanitize_text_field( wp_unslash($_GET['settings-updated']) ) : '';
+    if ($settings_updated) {
         add_settings_error('isw_ml_messages', 'isw_ml_message', 'Settings saved successfully.', 'updated');
     }
     settings_errors('isw_ml_messages');
@@ -340,13 +402,13 @@ add_action('admin_enqueue_scripts', 'isw_ml_admin_scripts');
 
 function isw_ml_settings_init(){
 
-	if (isset($_POST['button_text']) && trim($_POST['button_text']) == '') {
-        $_POST['button_text'] = 'Subscribe to our mailing list';
+	// Provera i sanitizacija $_POST['button_text']
+    if ( isset( $_POST['button_text'] ) ) {
+        // $_POST['button_text'] = sanitize_text_field( wp_unslash( $_POST['button_text'] ) );
+        if ( trim( sanitize_text_field( wp_unslash($_POST['button_text'] )) ) == '' ) {
+            $_POST['button_text'] = 'Subscribe to our mailing list';
+        }
     }
-
-	if (isset($_POST['button_text'])) {
-		$_POST['button_text'] = sanitize_text_field($_POST['button_text']);
-	}
 
 	register_setting('isw-ml-input-settings-group', 'input_text_color', ['sanitize_callback' => 'sanitize_text_field']);
 	register_setting('isw-ml-input-settings-group', 'input_border_color', ['sanitize_callback' => 'sanitize_text_field']);
@@ -457,28 +519,6 @@ add_settings_field(
     'isw-ml-input-settings',
     'isw-ml-settings-input-section'
 );
-
-	// register_setting('isw-ml-button-settings-group', 'button_bg_color');
-	// register_setting('isw-ml-button-settings-group', 'button_text');
-	// register_setting('isw-ml-button-settings-group', 'button_text_color');
-	// register_setting('isw-ml-button-settings-group', 'button_font_family');
-	// register_setting('isw-ml-button-settings-group', 'button_font_size');
-	// register_setting('isw-ml-button-settings-group', 'button_font_style');
-	// register_setting('isw-ml-button-settings-group', 'button_line_height');
-	// register_setting('isw-ml-button-settings-group', 'button_border_width');
-	// register_setting('isw-ml-button-settings-group', 'button_border_color');
-	// register_setting('isw-ml-button-settings-group', 'button_border_style');
-	// register_setting('isw-ml-button-settings-group', 'button_box_shadow');
-	// register_setting('isw-ml-button-settings-group', 'button_font_weight');
-	// register_setting('isw-ml-button-settings-group', 'button_width_type');
-	// register_setting('isw-ml-button-settings-group', 'button_width_custom');
-	// register_setting('isw-ml-button-settings-group', 'button_align');
-	// register_setting('isw-ml-button-settings-group', 'button_padding_top');
-	// register_setting('isw-ml-button-settings-group', 'button_padding_right');
-	// register_setting('isw-ml-button-settings-group', 'button_padding_bottom');
-	// register_setting('isw-ml-button-settings-group', 'button_padding_left');
-	// register_setting('isw-ml-button-settings-group', 'button_padding_same_all');
-	// register_setting('isw-ml-button-settings-group', 'button_border_radius');
 
 	add_settings_section(
 		'isw-ml-settings-button-section',
@@ -607,10 +647,6 @@ add_settings_field(
     'isw-ml-settings-button-section'
 );
 
-	// register_setting('isw-ml-response-mail-settings-group', 'email_from');
-	// register_setting('isw-ml-response-mail-settings-group', 'email_subject');
-	// register_setting('isw-ml-response-mail-settings-group', 'email_template');
-
 	add_settings_section(
 		'isw-ml-settings-response-mail-section',
 		'',
@@ -642,11 +678,6 @@ add_settings_field(
 		'isw-ml-settings-response-mail-section'
 	);
 
-	// register_setting('isw-ml-input-settings-group', 'input_name_placeholder');
-	// register_setting('isw-ml-input-settings-group', 'input_email_placeholder');
-	// register_setting('isw-ml-input-settings-group', 'ml_success_message');
-	// register_setting('isw-ml-input-settings-group', 'ml_error_message');
-
 	add_settings_field(
 		'input_name_placeholder',
 		'Name field placeholder',
@@ -676,7 +707,7 @@ add_settings_field(
 		'isw-ml-settings-input-section'
 	);
 }
-add_action('admin_init', 'isw_ml_settings_init');
+add_action( 'admin_init', 'isw_ml_settings_init' );
 
 /* input fields */
 function isw_ml_settings_input_section_callback(){
@@ -895,21 +926,30 @@ function isw_ml_error_message_callback(){
 }
 
 /* funkcije za proveru broja novih unosa i njihov pregled i prikazivanje */
-function isw_get_new_entries_count(){
-	global $wpdb;
+function isw_get_new_entries_count() {
+    global $wpdb;
+    $isw_table = $wpdb->prefix . 'isw_ml';
 
-	$isw_table = $wpdb->prefix . 'isw_ml';
-
-	$new_entries_count = $wpdb->get_var("SELECT COUNT(*) FROM $isw_table WHERE is_new = 1");
-
-	return $new_entries_count;
+    // Keširanje broja novih unosa
+    $cache_key = 'isw_ml_new_entries_count_' . $isw_table;
+    $new_entries_count = wp_cache_get( $cache_key );
+    if ( false === $new_entries_count ) {
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        $new_entries_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $isw_table WHERE is_new = %d", 1 ) );
+        wp_cache_set( $cache_key, $new_entries_count, '', 300 );
+    }
+    return $new_entries_count;
 }
 
 function isw_reset_new_entries() {
     global $wpdb;
     $isw_table = $wpdb->prefix . 'isw_ml';
 
-    $wpdb->query("UPDATE $isw_table SET is_new = 0 WHERE is_new = 1");
+    // Resetuj is_new i očisti keš
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+    $wpdb->query( $wpdb->prepare( "UPDATE $isw_table SET is_new = %d WHERE is_new = %d", 0, 1 ) );
+    $cache_key = 'isw_ml_new_entries_count_' . $isw_table;
+    wp_cache_delete( $cache_key );
 }
 
 /* funkcija za slanje povratnog emaila */
@@ -937,11 +977,13 @@ add_action('wp_footer', function() {
         inputs.forEach(function(input){
             input.addEventListener('focus', function(){
                 this.style.outlineColor = '<?php echo esc_js($input_outline_color); ?>';
-                this.style.outlineStyle = 'auto';
+                this.style.outlineStyle = 'solid';
+                this.style.outlineWidth = '2px';
             });
             input.addEventListener('blur', function(){
                 this.style.outlineColor = '';
                 this.style.outlineStyle = '';
+                this.style.outlineWidth = '';
             });
         });
     });
@@ -1104,3 +1146,67 @@ function isw_ml_button_border_radius_callback(){
 function isw_ml_sanitize_checkbox($value) {
     return $value ? 1 : 0;
 }
+
+function isw_ml_enqueue_frontend_js() {
+    if ( ! is_admin() ) {
+        wp_enqueue_script(
+            'isw-ml-frontend',
+            plugins_url('isw-wp-mailing-list-form-frontend.js', __FILE__),
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+        wp_localize_script('isw-ml-frontend', 'isw_ml_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'success_msg' => esc_html(get_option('ml_success_message', 'Your E-mail address was successfully submitted. Thank you!')),
+            'error_msg' => esc_html(get_option('ml_error_message', 'There was an error with your submission. Please try again.'))
+        ));
+    }
+}
+add_action('wp_enqueue_scripts', 'isw_ml_enqueue_frontend_js');
+
+
+function isw_ml_ajax_submit() {
+    if ( isset( $_POST['isw_ml_submit'] ) ) {
+        $nonce = isset( $_POST['isw_ml_form_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['isw_ml_form_nonce'] ) ) : '';
+        if ( ! $nonce || ! wp_verify_nonce( $nonce, 'isw_ml_form_action' ) ) {
+            wp_send_json_error(['reason' => 'nonce']);
+        }
+        $name  = isset( $_POST['isw_ml_name'] ) ? sanitize_text_field( wp_unslash( $_POST['isw_ml_name'] ) ) : '';
+        $email = isset( $_POST['isw_ml_email'] ) ? sanitize_email( wp_unslash( $_POST['isw_ml_email'] ) ) : '';
+        if ( ! is_email( $email ) ) {
+            wp_send_json_error(['reason' => 'email']);
+        }
+        global $wpdb;
+        $isw_table = $wpdb->prefix . 'isw_ml';
+        $cache_key = 'isw_ml_table_exists_' . $isw_table;
+        $table_exists = wp_cache_get( $cache_key );
+        if ( false === $table_exists ) {
+            $table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $isw_table ) ) === $isw_table;
+            wp_cache_set( $cache_key, $table_exists, '', 3600 );
+        }
+        if ( ! $table_exists ) {
+            $sql =  "CREATE TABLE $isw_table (
+                    id int(11) NOT NULL AUTO_INCREMENT,
+                    name VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) NOT NULL,
+                    is_new int(11) NOT NULL,
+                    UNIQUE KEY id (id)
+                    );";
+            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+            dbDelta( $sql );
+            wp_cache_set( $cache_key, true, '', 3600 );
+        }
+        $result = $wpdb->insert( $isw_table, array( 'name' => $name, 'email' => $email, 'is_new' => 1 ) );
+        if ( ! $result ) {
+            wp_send_json_error(['reason' => 'db']);
+        }
+        isw_send_thankyou_email( $email, $name );
+        wp_send_json_success();
+        wp_die();
+    }
+    wp_send_json_error(['reason' => 'other']);
+    wp_die();
+}
+add_action('wp_ajax_isw_ml_submit', 'isw_ml_ajax_submit');
+add_action('wp_ajax_nopriv_isw_ml_submit', 'isw_ml_ajax_submit');

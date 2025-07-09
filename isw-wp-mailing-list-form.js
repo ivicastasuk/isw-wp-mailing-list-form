@@ -65,4 +65,5 @@ jQuery(document).ready(function ($) {
     if ($('#isw_box_shadow_color').length) {
         updateBoxShadowInput();
     }
+
 });
