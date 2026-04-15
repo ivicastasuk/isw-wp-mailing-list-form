@@ -1,10 +1,5 @@
 jQuery(document).ready(function ($) {
-    $('#btn_bg_color').wpColorPicker();
-    $('#btn_text_color').wpColorPicker();
-    $('#input_text_color').wpColorPicker();
-    $('#input_border_color').wpColorPicker();
-    $('#btn_border_color').wpColorPicker();
-    $('#input_outline_color').wpColorPicker();
+    $('.isw-ml-color-field').not('#isw_box_shadow_color').wpColorPicker();
     $('#isw_box_shadow_color').wpColorPicker({
         change: function (event, ui) {
             $('#isw_box_shadow_color').val(ui.color.toString());
@@ -64,6 +59,65 @@ jQuery(document).ready(function ($) {
     // Pozovi odmah na učitavanje stranice da bi svi inputi i preview bili ažurirani
     if ($('#isw_box_shadow_color').length) {
         updateBoxShadowInput();
+    }
+
+    function bindPaddingGroup(prefix) {
+        var sameAll = $('#' + prefix + '_same_all');
+        var top = $('#' + prefix + '_top');
+        var others = $('#' + prefix + '_right, #' + prefix + '_bottom, #' + prefix + '_left');
+
+        if (!sameAll.length || !top.length || !others.length) {
+            return;
+        }
+
+        function syncGroup() {
+            if (sameAll.is(':checked')) {
+                others.val(top.val()).prop('readonly', true);
+            } else {
+                others.prop('readonly', false);
+            }
+        }
+
+        sameAll.on('change', syncGroup);
+        top.on('input', function () {
+            if (sameAll.is(':checked')) {
+                others.val(this.value);
+            }
+        });
+
+        syncGroup();
+    }
+
+    bindPaddingGroup('input_padding');
+    bindPaddingGroup('button_padding');
+
+    var $tabs = $('.isw-ml-admin__tabs .nav-tab');
+    var $panels = $('.isw-ml-tab-panel');
+
+    function activateTab(panelId) {
+        $tabs.each(function () {
+            var $tab = $(this);
+            var isActive = $tab.data('panel') === panelId;
+
+            $tab.toggleClass('nav-tab-active', isActive);
+            $tab.attr('aria-selected', isActive ? 'true' : 'false');
+        });
+
+        $panels.each(function () {
+            var $panel = $(this);
+            var isActive = $panel.attr('id') === panelId;
+
+            $panel.toggleClass('isw-ml-tab-panel-active', isActive);
+            $panel.prop('hidden', !isActive);
+        });
+    }
+
+    $tabs.on('click', function () {
+        activateTab($(this).data('panel'));
+    });
+
+    if ($tabs.length && $panels.length) {
+        activateTab($('.isw-ml-admin__tabs .nav-tab-active').data('panel') || $tabs.first().data('panel'));
     }
 
 });

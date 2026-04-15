@@ -1,0 +1,27 @@
+{
+    "name": "ivicastasuk/isw-wp-mailing-list-form",
+    "description": "Build tooling for the ISW WP Mailing List Form WordPress plugin.",
+    "type": "wordpress-plugin",
+    "require": {
+        "php": ">=7.4",
+        "ext-zip": "*"
+    },
+    "scripts": {
+        "lint": [
+            "@php -l isw-wp-mailing-list-form.php",
+            "@php -l includes/isw-ml-core.php",
+            "@php -l includes/isw-ml-frontend.php",
+            "@php -l includes/isw-ml-admin.php",
+            "@php -l export-handler.php",
+            "@php -l tools/build-plugin.php",
+            "@php -l tools/generate-pot.php",
+            "@php -l tools/bump-version.php"
+        ],
+        "i18n:pot": "@php tools/generate-pot.php",
+        "build": "@php tools/build-plugin.php",
+        "package": "@build",
+        "version:patch": "@php tools/bump-version.php patch",
+        "version:minor": "@php tools/bump-version.php minor",
+        "version:major": "@php tools/bump-version.php major"
+    }
+}

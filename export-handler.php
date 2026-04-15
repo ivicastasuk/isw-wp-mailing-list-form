@@ -2,26 +2,23 @@
 
 require_once(dirname(__FILE__, 3) . '/wp-load.php');
 
-// Provera nonce-a (dodajte _wpnonce parametar u admin link za eksport)
 $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
 if ( ! wp_verify_nonce($nonce, 'isw_ml_export_csv') ) {
-    wp_die('Security check failed.');
+    wp_die( esc_html__( 'Security check failed.', 'isw-wp-mailing-list-form' ) );
 }
 
-// Provera privilegija
 if (!current_user_can('manage_options')) {
-    wp_die('You don\'t have access to export this data.');
+    wp_die( esc_html__( 'You do not have access to export this data.', 'isw-wp-mailing-list-form' ) );
 }
 
 global $wpdb;
-$isw_table = $wpdb->prefix . 'isw_ml';
+$isw_table = function_exists( 'isw_ml_get_table_name' ) ? isw_ml_get_table_name() : $wpdb->prefix . 'isw_ml';
 
-// Proverite da je ime tabele validno (opciono, dodatna bezbednost)
-if ( $wpdb->is_table( $isw_table ) ) {
+if ( function_exists( 'isw_ml_table_exists' ) ? isw_ml_table_exists() : ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $isw_table ) ) === $isw_table ) ) {
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.NoCaching
     $data = $wpdb->get_results( "SELECT * FROM `$isw_table`" );
 } else {
-    wp_die('Table does not exist.');
+    wp_die( esc_html__( 'Table does not exist.', 'isw-wp-mailing-list-form' ) );
 }
 
 if($data && count($data) > 0){
@@ -31,7 +28,10 @@ if($data && count($data) > 0){
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $filename . '";');
     $f = fopen('php://output', 'w');
-    $headers = array('Display Name', 'Primary Email');
+    $headers = array(
+        __( 'Display Name', 'isw-wp-mailing-list-form' ),
+        __( 'Primary Email', 'isw-wp-mailing-list-form' ),
+    );
     fputcsv($f, $headers, $delimiter);
 
     foreach($data as $row){

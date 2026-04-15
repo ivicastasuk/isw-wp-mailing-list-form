@@ -1,0 +1,349 @@
+.isw-ml-admin {
+    max-width: 1240px;
+}
+
+.isw-ml-admin__hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 20px 0 24px;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.isw-ml-admin__title {
+    margin: 0 0 8px;
+    font-size: 24px;
+    line-height: 1.3;
+}
+
+.isw-ml-admin__description {
+    margin: 0;
+    max-width: 760px;
+    color: #50575e;
+    font-size: 14px;
+}
+
+.isw-ml-admin__hero-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.isw-ml-admin__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.isw-ml-admin__stat,
+.isw-ml-card {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.isw-ml-admin__stat {
+    padding: 18px 20px;
+}
+
+.isw-ml-admin__stat-label,
+.isw-ml-card__header p {
+    display: block;
+    color: #50575e;
+    font-size: 13px;
+}
+
+.isw-ml-admin__stat-value {
+    display: block;
+    margin: 8px 0 6px;
+    font-size: 24px;
+    line-height: 1.2;
+}
+
+.isw-ml-admin__stat-description {
+    display: block;
+    color: #646970;
+    font-size: 12px;
+}
+
+.isw-ml-admin__grid,
+.isw-ml-settings-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 360px);
+    gap: 20px;
+    align-items: start;
+}
+
+.isw-ml-card {
+    padding: 20px;
+}
+
+.isw-ml-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.isw-ml-card__header h2 {
+    margin: 0 0 6px;
+    font-size: 18px;
+}
+
+.isw-ml-card__header p {
+    margin: 0;
+}
+
+.isw-ml-card__badge {
+    padding: 4px 10px;
+    background: #f0f6fc;
+    border: 1px solid #c5d9ed;
+    border-radius: 999px;
+    color: #0a4b78;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.isw-ml-card--table .wp-list-table {
+    border: 0;
+    box-shadow: none;
+}
+
+.isw-ml-card--table .wp-list-table th,
+.isw-ml-card--table .wp-list-table td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.isw-ml-admin__actions-column {
+    width: 120px;
+    text-align: right;
+}
+
+.isw-ml-admin__delete-link {
+    color: #b32d2e;
+    text-decoration: none;
+}
+
+.isw-ml-admin__delete-link:hover,
+.isw-ml-admin__delete-link:focus {
+    color: #8a2424;
+}
+
+.isw-ml-admin__shortcode-box {
+    margin: 0 0 12px;
+    padding: 12px 14px;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+}
+
+.isw-ml-admin__sidebar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.isw-ml-empty-state {
+    padding: 36px 20px;
+    border: 1px dashed #c3c4c7;
+    border-radius: 8px;
+    text-align: center;
+    color: #50575e;
+}
+
+.isw-ml-empty-state__title {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.isw-ml-admin__tabs {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.isw-ml-admin__tabs .nav-tab {
+    cursor: pointer;
+}
+
+.isw-ml-admin__tabs .nav-tab:focus {
+    position: relative;
+    z-index: 1;
+}
+
+.isw-ml-postbox {
+    margin: 0 0 20px;
+}
+
+.isw-ml-postbox .postbox-header {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.isw-ml-postbox .postbox-header .hndle {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.isw-ml-tab-panel[hidden] {
+    display: none;
+}
+
+.isw-ml-postbox .inside {
+    margin: 0;
+    padding: 18px 20px 8px;
+}
+
+.isw-ml-settings-section-intro {
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+}
+
+.isw-ml-settings-section-intro p {
+    margin: 0;
+    color: #50575e;
+}
+
+.isw-ml-settings-form .form-table {
+    margin-top: 0;
+}
+
+.isw-ml-settings-form .form-table th {
+    width: 260px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+}
+
+.isw-ml-settings-form .form-table td {
+    padding-top: 14px;
+    padding-bottom: 18px;
+}
+
+.isw-ml-control,
+.isw-ml-select {
+    width: min(480px, 100%);
+}
+
+.isw-ml-color-field {
+    width: 120px;
+}
+
+.isw-ml-unit-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.isw-ml-unit {
+    color: #50575e;
+}
+
+.isw-ml-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.isw-ml-padding-editor {
+    display: grid;
+    gap: 12px;
+}
+
+.isw-ml-padding-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    gap: 12px 18px;
+}
+
+.isw-ml-padding-grid label,
+.isw-ml-range-field,
+.isw-ml-shadow-color {
+    display: grid;
+    gap: 6px;
+    font-weight: 600;
+}
+
+.isw-ml-shadow-editor {
+    display: grid;
+    gap: 16px;
+}
+
+.isw-ml-shadow-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+}
+
+.isw-ml-shadow-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: end;
+}
+
+.isw-ml-shadow-preview-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.isw-ml-shadow-preview {
+    width: 72px;
+    height: 36px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 6px;
+}
+
+.isw-ml-settings-layout__sidebar .isw-ml-card {
+    position: sticky;
+    top: 32px;
+}
+
+@media (max-width: 960px) {
+    .isw-ml-admin__grid,
+    .isw-ml-settings-layout,
+    .isw-ml-admin__stats,
+    .isw-ml-shadow-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .isw-ml-admin__hero {
+        flex-direction: column;
+    }
+
+    .isw-ml-settings-layout__sidebar .isw-ml-card {
+        position: static;
+    }
+}
+
+@media (max-width: 782px) {
+    .isw-ml-settings-form .form-table th,
+    .isw-ml-settings-form .form-table td {
+        display: block;
+        width: auto;
+        padding-right: 0;
+    }
+
+    .isw-ml-padding-grid {
+        grid-template-columns: 1fr;
+    }
+}

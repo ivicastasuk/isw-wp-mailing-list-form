@@ -3,7 +3,7 @@ Contributors: ivicastasuk
 Tags: mailing list, newsletter, email, form, subscription
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 1.0.0
+Stable tag: 1.0.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -55,10 +55,28 @@ Yes, you can customize the response email template and subject in the settings.
 
 == Changelog ==
 
+= 1.0.3 =
+* Maintenance release.
+
+= 1.0.2 =
+* Maintenance release.
+
+= 1.0.1 =
+* Maintenance release.
+
 = 1.0.0 =
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.3 =
+Maintenance release.
+
+= 1.0.2 =
+Maintenance release.
+
+= 1.0.1 =
+Maintenance release.
 
 = 1.0.0 =
 First public release.

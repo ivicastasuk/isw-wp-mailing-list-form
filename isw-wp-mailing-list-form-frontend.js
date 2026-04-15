@@ -1,7 +1,8 @@
 jQuery(document).ready(function($){
-    $('#isw-ml-form').on('submit', function(e){
+    $(document).on('submit', '.isw-ml-form', function(e){
         e.preventDefault();
         var $form = $(this);
+        var $messageTarget = $form.closest('.isw-ml-form-container').find('.isw-ml-form-message-target').first();
         var formData = $form.serialize() + '&action=isw_ml_submit';
         $.post(isw_ml_ajax.ajax_url, formData, function(response){
             var msg = '';
@@ -9,9 +10,17 @@ jQuery(document).ready(function($){
                 msg = '<div class="isw-ml-form-message">' + isw_ml_ajax.success_msg + '</div>';
                 $form[0].reset();
             } else {
-                msg = '<div class="isw-ml-form-message isw-ml-error">' + isw_ml_ajax.error_msg + '</div>';
+                var errorMessage = isw_ml_ajax.error_msg;
+                if (response.data && response.data.reason === 'duplicate') {
+                    errorMessage = isw_ml_ajax.duplicate_msg;
+                } else if (response.data && response.data.reason === 'invalid_email') {
+                    errorMessage = isw_ml_ajax.invalid_email_msg;
+                } else if (response.data && response.data.reason === 'invalid_nonce') {
+                    errorMessage = isw_ml_ajax.invalid_nonce_msg;
+                }
+                msg = '<div class="isw-ml-form-message isw-ml-error">' + errorMessage + '</div>';
             }
-            $('#isw-ml-form-message').html(msg);
+            $messageTarget.html(msg);
         });
     });
 });
